@@ -1,5 +1,7 @@
 FROM node:24-alpine
 
+RUN apk add --no-cache openssl
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -10,4 +12,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
