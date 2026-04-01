@@ -22,4 +22,12 @@ const agendamentoSchema = z
     path: ['servicoLevantamento'],
   });
 
+export const statusSchema = z.object({
+  status: z.enum(['APROVADO', 'RECUSADO', 'PENDENTE'], {
+    errorMap: () => ({
+      message: 'O status deve ser APROVADO, RECUSADO ou PENDENTE',
+    }),
+  }),
+});
+
 export { agendamentoSchema };

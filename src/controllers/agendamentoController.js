@@ -30,3 +30,26 @@ export const createAgendamento = catchAsync(async (req, res, next) => {
     'Agendamento solicitado com sucesso!',
   );
 });
+
+export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const agendamentoAtualizado =
+    await agendamentoService.atualizarStatusAgendamento(id, status);
+
+  return resfc(
+    res,
+    200,
+    agendamentoAtualizado,
+    `Agendamento ${status.toLowerCase()} com sucesso!`,
+  );
+});
+
+export const deleteAgendamento = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  await agendamentoService.excluirAgendamento(id);
+
+  return resfc(res, 200, null, 'Agendamento removido do sistema.');
+});

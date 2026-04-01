@@ -1,5 +1,7 @@
 import db from '../config/db.js';
 
+import { getHoraAtual } from '../utils/dateUtils.js';
+
 export const listarAgendamentosPaginados = async (page, limit) => {
   const offset = (page - 1) * limit;
 
@@ -23,23 +25,45 @@ export const listarAgendamentosPaginados = async (page, limit) => {
 };
 
 export const criarAgendamento = async (dados) => {
-  const horaAtual =
-    new Date()
-      .toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' })
-      .replace(' ', 'T') + '.000Z';
+  const horaAtual = getHoraAtual();
 
   const [id] = await db('agendamentos').insert({
-    rm: dados.rm,
-    email: dados.email,
-    curso: dados.curso,
+    ...dados,
     servico_levantamento: dados.servicoLevantamento ? 1 : 0,
     servico_normalizacao: dados.servicoNormalizacao ? 1 : 0,
-    data_atendimento: dados.dataAtendimento,
-    hora_atendimento: dados.horaAtendimento,
     status: 'PENDENTE',
     created_at: horaAtual,
     updated_at: horaAtual,
   });
 
   return { id, ...dados, status: 'PENDENTE' };
+};
+
+export const atualizarStatusAgendamento = async (id, status) => {
+  const horaAtual = getHoraAtual();
+
+  const rowsAffected = await db('agendamentos').where({ id }).update({
+    status,
+    updated_at: horaAtual,
+  });
+
+  if (!rowsAffected) {
+    const error = new Error('Agendamento não encontrado para atualização.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return { id, status };
+};
+
+export const excluirAgendamento = async (id) => {
+  const rowsAffected = await db('agendamentos').where({ id }).delete();
+
+  if (!rowsAffected) {
+    const error = new Error('Agendamento não encontrado para exclusão.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return true;
 };
