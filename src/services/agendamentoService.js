@@ -28,7 +28,11 @@ export const criarAgendamento = async (dados) => {
   const horaAtual = getHoraAtual();
 
   const [id] = await db('agendamentos').insert({
-    ...dados,
+    rm: dados.rm,
+    email: dados.email,
+    curso: dados.curso,
+    data_atendimento: dados.dataAtendimento,
+    hora_atendimento: dados.horaAtendimento,
     servico_levantamento: dados.servicoLevantamento ? 1 : 0,
     servico_normalizacao: dados.servicoNormalizacao ? 1 : 0,
     status: 'PENDENTE',
