@@ -12,14 +12,7 @@ const validate = (schema) => (req, res, next) => {
       });
     }
 
-    return res.status(400).json({
-      erros: [
-        {
-          campo: 'formulario',
-          mensagem: 'Dados inválidos ou erro de processamento.',
-        },
-      ],
-    });
+    next(error);
   }
 };
 

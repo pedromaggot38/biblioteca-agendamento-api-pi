@@ -1,6 +1,6 @@
 import db from '../config/db.js';
 
-export const createAgendamento = async (req, res) => {
+export const createAgendamento = async (req, res, next) => {
   try {
     const [id] = await db('agendamentos').insert({
       rm: req.body.rm,
@@ -15,17 +15,16 @@ export const createAgendamento = async (req, res) => {
       updated_at: new Date().toISOString(),
     });
 
-    res.status(201).json({ id, mensagem: 'Agendamento solicitado!' });
-  } catch (error) {
-    console.error('ERRO NO POST:', error);
-    res.status(500).json({
-      erro: 'Erro ao solicitar o agendamento.',
-      detalhe: error.message,
+    res.status(201).json({
+      id,
+      mensagem: 'Agendamento solicitado com sucesso!',
     });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const getAllAgendamentos = async (req, res) => {
+export const getAllAgendamentos = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -49,8 +48,6 @@ export const getAllAgendamentos = async (req, res) => {
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ erro: 'Erro ao buscar dados.', detalhe: error.message });
+    next(error);
   }
 };
