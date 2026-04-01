@@ -1,53 +1,32 @@
-import db from '../config/db.js';
+import catchAsync from '../utils/catchAsync.js';
+import { resfc } from '../utils/response.js';
+import * as agendamentoService from '../services/agendamentoService.js';
 
-export const createAgendamento = async (req, res, next) => {
-  try {
-    const [id] = await db('agendamentos').insert({
-      rm: req.body.rm,
-      email: req.body.email,
-      curso: req.body.curso,
-      servico_levantamento: req.body.servicoLevantamento ? 1 : 0,
-      servico_normalizacao: req.body.servicoNormalizacao ? 1 : 0,
-      data_atendimento: req.body.dataAtendimento,
-      hora_atendimento: req.body.horaAtendimento,
-      status: 'PENDENTE',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+export const getAllAgendamentos = catchAsync(async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
 
-    res.status(201).json({
-      id,
-      mensagem: 'Agendamento solicitado com sucesso!',
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+  const result = await agendamentoService.listarAgendamentosPaginados(
+    page,
+    limit,
+  );
 
-export const getAllAgendamentos = async (req, res, next) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+  return resfc(
+    res,
+    200,
+    { agendamentos: result.data, pagination: result.pagination },
+    'Lista de agendamentos recuperada',
+    result.data.length,
+  );
+});
 
-    const agendamentos = await db('agendamentos')
-      .select('*')
-      .limit(limit)
-      .offset(offset)
-      .orderBy('created_at', 'desc');
+export const createAgendamento = catchAsync(async (req, res, next) => {
+  const novoAgendamento = await agendamentoService.criarAgendamento(req.body);
 
-    const [{ total }] = await db('agendamentos').count('id as total');
-
-    res.json({
-      data: agendamentos,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+  return resfc(
+    res,
+    201,
+    novoAgendamento,
+    'Agendamento solicitado com sucesso!',
+  );
+});
