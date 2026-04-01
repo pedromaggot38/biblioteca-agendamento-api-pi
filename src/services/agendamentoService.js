@@ -23,6 +23,11 @@ export const listarAgendamentosPaginados = async (page, limit) => {
 };
 
 export const criarAgendamento = async (dados) => {
+  const horaAtual =
+    new Date()
+      .toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' })
+      .replace(' ', 'T') + '.000Z';
+
   const [id] = await db('agendamentos').insert({
     rm: dados.rm,
     email: dados.email,
@@ -32,8 +37,8 @@ export const criarAgendamento = async (dados) => {
     data_atendimento: dados.dataAtendimento,
     hora_atendimento: dados.horaAtendimento,
     status: 'PENDENTE',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: horaAtual,
+    updated_at: horaAtual,
   });
 
   return { id, ...dados, status: 'PENDENTE' };
