@@ -6,20 +6,21 @@ const agendamentoSchema = z
       .string()
       .length(5, 'O RM deve ter exatamente 5 dígitos')
       .regex(/^\d+$/, 'RM deve conter apenas números'),
+    nome: z.string().min(4, 'Informe o nome completo'),
     email: z
       .email('E-mail inválido')
-      .endsWith('@instituicao.edu.br', 'Use o e-mail institucional'),
+      .endsWith('@etec.sp.gov.br', 'Use o e-mail institucional'),
     curso: z.string().min(2, 'Informe o curso técnico'),
-    servicoLevantamento: z.boolean().default(false),
-    servicoNormalizacao: z.boolean().default(false),
-    dataAtendimento: z.string().transform((val) => new Date(val)),
-    horaAtendimento: z
+    servico_levantamento: z.boolean().default(false),
+    servico_normalizacao: z.boolean().default(false),
+    data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (AAAA-MM-DD)'),
+    horario: z
       .string()
       .regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido (HH:MM)'),
   })
-  .refine((data) => data.servicoLevantamento || data.servicoNormalizacao, {
+  .refine((data) => data.servico_levantamento || data.servico_normalizacao, {
     message: 'Selecione ao menos um tipo de serviço',
-    path: ['servicoLevantamento'],
+    path: ['servico_levantamento'],
   });
 
 export const statusSchema = z.object({

@@ -1,6 +1,6 @@
 import db from '../config/db.js';
 
-import { getHoraAtual } from '../utils/dateUtils.js';
+import { getNowBR } from '../utils/dateUtils.js';
 
 export const listarAgendamentosPaginados = async (page, limit) => {
   const offset = (page - 1) * limit;
@@ -25,19 +25,17 @@ export const listarAgendamentosPaginados = async (page, limit) => {
 };
 
 export const criarAgendamento = async (dados) => {
-  const horaAtual = getHoraAtual();
+  const agora = getNowBR();
+  
+  const { servico_levantamento, servico_normalizacao, ...resto } = dados;
 
   const [id] = await db('agendamentos').insert({
-    rm: dados.rm,
-    email: dados.email,
-    curso: dados.curso,
-    data_atendimento: dados.dataAtendimento,
-    hora_atendimento: dados.horaAtendimento,
-    servico_levantamento: dados.servicoLevantamento ? 1 : 0,
-    servico_normalizacao: dados.servicoNormalizacao ? 1 : 0,
+    ...resto, 
+    servico_levantamento: servico_levantamento ? 1 : 0,
+    servico_normalizacao: servico_normalizacao ? 1 : 0,
     status: 'PENDENTE',
-    created_at: horaAtual,
-    updated_at: horaAtual,
+    created_at: agora,
+    updated_at: agora,
   });
 
   return { id, ...dados, status: 'PENDENTE' };
