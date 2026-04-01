@@ -27,10 +27,28 @@ export const createAgendamento = async (req, res) => {
 
 export const getAllAgendamentos = async (req, res) => {
   try {
-    const agendamentos = await db('agendamentos').select('*');
-    res.json(agendamentos);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const agendamentos = await db('agendamentos')
+      .select('*')
+      .limit(limit)
+      .offset(offset)
+      .orderBy('created_at', 'desc');
+
+    const [{ total }] = await db('agendamentos').count('id as total');
+
+    res.json({
+      data: agendamentos,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
-    console.error('ERRO NO GET:', error);
     res
       .status(500)
       .json({ erro: 'Erro ao buscar dados.', detalhe: error.message });
