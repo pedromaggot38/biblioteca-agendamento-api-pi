@@ -25,12 +25,25 @@ export const listarAgendamentosPaginados = async (page, limit) => {
 };
 
 export const criarAgendamento = async (dados) => {
+  const email = dados.email.trim().toLowerCase();
+  const nome = dados.nome.trim().toUpperCase();
   const agora = getNowBR();
-  
+
+  const existente = await db('agendamentos')
+    .where({ rm: dados.rm }).orWhere({ email }).first();
+
+  if (existente && (existente.rm !== dados.rm || existente.email !== email)) {
+    const error = new Error("Dados de RM/E-mail não coincidem com registros anteriores.");
+    error.statusCode = 400;
+    throw error;
+  }
+
   const { servico_levantamento, servico_normalizacao, ...resto } = dados;
 
   const [id] = await db('agendamentos').insert({
-    ...resto, 
+    ...resto,
+    nome,
+    email,
     servico_levantamento: servico_levantamento ? 1 : 0,
     servico_normalizacao: servico_normalizacao ? 1 : 0,
     status: 'PENDENTE',
@@ -38,7 +51,7 @@ export const criarAgendamento = async (dados) => {
     updated_at: agora,
   });
 
-  return { id, ...dados, status: 'PENDENTE' };
+  return { id, ...dados, nome, email, status: 'PENDENTE', created_at: agora };
 };
 
 export const atualizarStatusAgendamento = async (id, status) => {

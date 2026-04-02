@@ -5,9 +5,9 @@ const errorHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
 
   res.status(statusCode).json({
-    erro: true,
-    mensagem: err.message || 'Ocorreu um erro interno no servidor.',
-    detalhe: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    error: true,
+    message: err.message || 'Ocorreu um erro interno no servidor.',
+    detail: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 };
 
