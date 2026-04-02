@@ -1,6 +1,7 @@
 import db from '../config/db.js';
 
 import { getNowBR } from '../utils/dateUtils.js';
+import { formatTitleCase } from '../utils/stringUtils.js';
 
 export const listarAgendamentosPaginados = async (page, limit) => {
   const offset = (page - 1) * limit;
@@ -26,7 +27,8 @@ export const listarAgendamentosPaginados = async (page, limit) => {
 
 export const criarAgendamento = async (dados) => {
   const email = dados.email.trim().toLowerCase();
-  const nome = dados.nome.trim().toUpperCase();
+  const nome = formatTitleCase(dados.nome);
+  const curso = formatTitleCase(dados.curso);
   const agora = getNowBR();
 
   const existente = await db('agendamentos')
@@ -44,6 +46,7 @@ export const criarAgendamento = async (dados) => {
     ...resto,
     nome,
     email,
+    curso,
     servico_levantamento: servico_levantamento ? 1 : 0,
     servico_normalizacao: servico_normalizacao ? 1 : 0,
     status: 'PENDENTE',
@@ -51,7 +54,15 @@ export const criarAgendamento = async (dados) => {
     updated_at: agora,
   });
 
-  return { id, ...dados, nome, email, status: 'PENDENTE', created_at: agora };
+  return { 
+    id, 
+    ...dados, 
+    nome, 
+    email, 
+    curso,
+    status: 'PENDENTE', 
+    created_at: agora 
+  };
 };
 
 export const atualizarStatusAgendamento = async (id, status) => {
