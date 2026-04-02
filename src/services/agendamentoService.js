@@ -1,4 +1,8 @@
 import db from '../config/db.js';
+import {
+  validarHorarioAgendamento,
+  validarVinculoExistente,
+} from '../utils/controllers/agendamentoUtils.js';
 
 import { getNowBR } from '../utils/dateUtils.js';
 import { formatTitleCase } from '../utils/stringUtils.js';
@@ -31,14 +35,14 @@ export const criarAgendamento = async (dados) => {
   const curso = formatTitleCase(dados.curso);
   const agora = getNowBR();
 
-  const existente = await db('agendamentos')
-    .where({ rm: dados.rm }).orWhere({ email }).first();
+  validarHorarioAgendamento(dados.horario);
 
-  if (existente && (existente.rm !== dados.rm || existente.email !== email)) {
-    const error = new Error("Dados de RM/E-mail não coincidem com registros anteriores.");
-    error.statusCode = 400;
-    throw error;
-  }
+  const existente = await db('agendamentos')
+    .where({ rm: dados.rm })
+    .orWhere({ email })
+    .first();
+
+  validarVinculoExistente(existente, dados, email);
 
   const { servico_levantamento, servico_normalizacao, ...resto } = dados;
 
@@ -54,14 +58,14 @@ export const criarAgendamento = async (dados) => {
     updated_at: agora,
   });
 
-  return { 
-    id, 
-    ...dados, 
-    nome, 
-    email, 
+  return {
+    id,
+    ...dados,
+    nome,
+    email,
     curso,
-    status: 'PENDENTE', 
-    created_at: agora 
+    status: 'PENDENTE',
+    created_at: agora,
   };
 };
 
