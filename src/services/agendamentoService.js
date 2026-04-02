@@ -9,16 +9,28 @@ import {
 
 import { formatTitleCase } from '../utils/stringUtils.js';
 
-export const listarAgendamentosPaginados = async (page, limit) => {
+export const listarAgendamentosPaginados = async (
+  page,
+  limit,
+  status = null,
+) => {
   const offset = (page - 1) * limit;
 
-  const agendamentos = await db('agendamentos')
+  let query = db('agendamentos');
+  let countQuery = db('agendamentos');
+
+  if (status) {
+    query = query.where({ status });
+    countQuery = countQuery.where({ status });
+  }
+
+  const agendamentos = await query
     .select('*')
     .limit(limit)
     .offset(offset)
     .orderBy('id', 'desc');
 
-  const [{ total }] = await db('agendamentos').count('id as total');
+  const [{ total }] = await countQuery.count('id as total');
 
   return {
     data: agendamentos,

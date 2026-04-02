@@ -5,10 +5,12 @@ import * as agendamentoService from '../services/agendamentoService.js';
 export const getAllAgendamentos = catchAsync(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const status = req.query.status || null;
 
   const result = await agendamentoService.listarAgendamentosPaginados(
     page,
     limit,
+    status,
   );
 
   return resfc(
