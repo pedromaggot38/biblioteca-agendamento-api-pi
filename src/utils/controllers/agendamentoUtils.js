@@ -17,6 +17,18 @@ export const validarHorarioAgendamento = (horarioStr) => {
   }
 };
 
+export const validarDataFutura = (dataAgendamento) => {
+  const hoje = getTodayBR();
+
+  if (dataAgendamento < hoje) {
+    const error = new Error(
+      'Não é possível realizar agendamentos para datas passadas.',
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 export const validarDisponibilidadeHorario = async (db, data, horario) => {
   const conflito = await db('agendamentos').where({ data, horario }).first();
 
@@ -42,4 +54,22 @@ export const validarVinculoExistente = (
     error.statusCode = 400;
     throw error;
   }
+};
+
+/**
+ * Retorna a data e hora atual formatada para o fuso de São Paulo
+ * no padrão aceito pelo SQLite (ISO 8601 adaptado).
+ */
+export const getNowBR = () => {
+  return (
+    new Date()
+      .toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' })
+      .replace(' ', 'T') + '.000Z'
+  );
+};
+
+export const getTodayBR = () => {
+  return new Date()
+    .toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' })
+    .split(' ')[0];
 };

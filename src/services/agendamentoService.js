@@ -1,11 +1,12 @@
 import db from '../config/db.js';
 import {
+  getNowBR,
+  validarDataFutura,
   validarDisponibilidadeHorario,
   validarHorarioAgendamento,
   validarVinculoExistente,
 } from '../utils/controllers/agendamentoUtils.js';
 
-import { getNowBR } from '../utils/dateUtils.js';
 import { formatTitleCase } from '../utils/stringUtils.js';
 
 export const listarAgendamentosPaginados = async (page, limit) => {
@@ -15,7 +16,7 @@ export const listarAgendamentosPaginados = async (page, limit) => {
     .select('*')
     .limit(limit)
     .offset(offset)
-    .orderBy('created_at', 'desc');
+    .orderBy('id', 'desc');
 
   const [{ total }] = await db('agendamentos').count('id as total');
 
@@ -37,6 +38,7 @@ export const criarAgendamento = async (dados) => {
   const agora = getNowBR();
 
   validarHorarioAgendamento(dados.horario);
+  validarDataFutura(dados.data);
 
   await validarDisponibilidadeHorario(db, dados.data, dados.horario);
 
@@ -73,11 +75,11 @@ export const criarAgendamento = async (dados) => {
 };
 
 export const atualizarStatusAgendamento = async (id, status) => {
-  const horaAtual = getHoraAtual();
+  const agora = getNowBR();
 
   const rowsAffected = await db('agendamentos').where({ id }).update({
     status,
-    updated_at: horaAtual,
+    updated_at: agora,
   });
 
   if (!rowsAffected) {
