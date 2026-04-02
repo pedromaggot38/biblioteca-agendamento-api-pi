@@ -17,6 +17,16 @@ export const validarHorarioAgendamento = (horarioStr) => {
   }
 };
 
+export const validarDisponibilidadeHorario = async (db, data, horario) => {
+  const conflito = await db('agendamentos').where({ data, horario }).first();
+
+  if (conflito) {
+    const error = new Error('Este horário já está reservado para outro aluno.');
+    error.statusCode = 409;
+    throw error;
+  }
+};
+
 export const validarVinculoExistente = (
   existente,
   dadosEnvio,

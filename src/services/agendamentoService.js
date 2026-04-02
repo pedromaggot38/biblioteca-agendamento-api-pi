@@ -1,5 +1,6 @@
 import db from '../config/db.js';
 import {
+  validarDisponibilidadeHorario,
   validarHorarioAgendamento,
   validarVinculoExistente,
 } from '../utils/controllers/agendamentoUtils.js';
@@ -36,6 +37,8 @@ export const criarAgendamento = async (dados) => {
   const agora = getNowBR();
 
   validarHorarioAgendamento(dados.horario);
+
+  await validarDisponibilidadeHorario(db, dados.data, dados.horario);
 
   const existente = await db('agendamentos')
     .where({ rm: dados.rm })
