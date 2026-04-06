@@ -7,15 +7,16 @@ import {
   statusSchema,
 } from '../models/agendamentoSchema.js';
 import { createAgendamento, deleteAgendamento, getAllAgendamentos, getDisponibilidade, updateStatusAgendamento } from '../controllers/agendamentoController.js';
+import { apiLimiter, createAgendamentoLimiter } from '../middlewares/rateLimiter.js';
 
 const router = express.Router();
 
-router.get('/disponibilidade', validate(disponibilidadeSchema, 'query'), getDisponibilidade);
+router.get('/disponibilidade', apiLimiter, validate(disponibilidadeSchema, 'query'), getDisponibilidade);
 
 router
   .route('/')
   .get(auth, getAllAgendamentos)
-  .post(validate(agendamentoSchema), createAgendamento);
+  .post(createAgendamentoLimiter, validate(agendamentoSchema), createAgendamento);
 
 router
   .route('/:id/')

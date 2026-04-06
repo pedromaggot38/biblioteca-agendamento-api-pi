@@ -1,5 +1,7 @@
 # 📚 Sistema de Agendamento Biblioteca ETEC - Projeto Integrador UNIVESP
 
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
 Este é o back-end do sistema de agendamento para serviços de levantamento bibliográfico e normalização de trabalhos acadêmicos. Desenvolvido para facilitar a organização da biblioteca, o sistema agora conta com um portal administrativo seguro para o bibliotecário.
 
 ## 🚀 Tecnologias Utilizadas
@@ -11,7 +13,9 @@ Este é o back-end do sistema de agendamento para serviços de levantamento bibl
 * **Validação**: Zod
 * **Containerização**: Docker & Docker Compose
 
-## 🛡️ Segurança e Autenticação
+## 🛡️ Segurança
+
+### Autenticação
 
 O sistema implementa uma arquitetura de segurança robusta para proteger o gerenciamento dos agendamentos:
 
@@ -20,6 +24,23 @@ O sistema implementa uma arquitetura de segurança robusta para proteger o geren
 * **Primeiro Registro**: O sistema possui uma trava de segurança que só permite a criação de um administrador se a tabela de usuários estiver vazia.
 * **Middleware de Autorização**: Valida a integridade e a expiração do token em cada requisição protegida.
 * **Sanitização de Respostas**: O utilitário `resfc` garante que campos sensíveis, como senhas, nunca sejam enviados nas respostas JSON da API.
+
+### Controle de Tráfego (Rate Limiting)
+
+Para garantir a disponibilidade do serviço e proteger o sistema contra abusos, foram implementadas camadas de limitação de requisições (Rate Limiting):
+
+* **Proteção de Login (Brute Force)**: Restrito a **8 tentativas por hora** por IP. Isso impede que scripts automatizados tentem adivinhar a senha do administrador.
+* **Prevenção de Spam em Agendamentos**: Limite de **5 novos agendamentos por hora** por IP, evitando que a agenda seja preenchida maliciosamente por um único usuário.
+* **Consulta de Disponibilidade**: Limite de **100 requisições a cada 15 minutos**, permitindo uma navegação fluida no calendário sem sobrecarregar o servidor.
+
+### 📅 Inteligência de Disponibilidade
+
+A rota de consulta de horários (`GET /disponibilidade`) possui regras de negócio integradas para garantir a consistência da agenda:
+
+* **Bloqueio de Datas Passadas**: O sistema não processa consultas para datas anteriores ao dia atual. Se uma data retroativa for enviada, a API retorna um erro de validação ou uma lista vazia.
+* **Filtro em Tempo Real**: Horários que já possuem agendamentos com status `PENDENTE` ou `APROVADO` são removidos automaticamente da lista de opções enviada ao frontend.
+
+---
 
 ## ⚙️ Configuração de Ambiente (.env)
 

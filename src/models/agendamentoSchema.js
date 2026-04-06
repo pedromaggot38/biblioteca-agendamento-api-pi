@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getTodayBR } from '../utils/controllers/agendamentoUtils.js';
 
 const agendamentoSchema = z
   .object({
@@ -35,6 +36,9 @@ export const disponibilidadeSchema = z.object({
   data: z
     .string({ required_error: "A data é obrigatória" })
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (deve ser AAAA-MM-DD)')
+    .refine((data) => data >= getTodayBR(), {
+      message: "Não é possível consultar disponibilidade para datas passadas",
+    }),
 });
 
 export { agendamentoSchema };

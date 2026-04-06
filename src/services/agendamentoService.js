@@ -1,6 +1,7 @@
 import db from '../config/db.js';
 import {
   getNowBR,
+  getTodayBR,
   validarDataFutura,
   validarDisponibilidadeHorario,
   validarHorarioAgendamento,
@@ -116,6 +117,8 @@ export const excluirAgendamento = async (id) => {
 };
 
 export const buscarHorariosDisponiveis = async (data) => {
+  if (data < getTodayBR()) return [];
+
   const todosHorarios = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
     '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
