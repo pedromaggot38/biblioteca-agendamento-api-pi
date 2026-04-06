@@ -15,7 +15,7 @@ Este é o back-end do sistema de agendamento para serviços de levantamento bibl
 
 ## 🛡️ Segurança
 
-### Autenticação
+### 🔑 Autenticação
 
 O sistema implementa uma arquitetura de segurança robusta para proteger o gerenciamento dos agendamentos:
 
@@ -25,7 +25,7 @@ O sistema implementa uma arquitetura de segurança robusta para proteger o geren
 * **Middleware de Autorização**: Valida a integridade e a expiração do token em cada requisição protegida.
 * **Sanitização de Respostas**: O utilitário `resfc` garante que campos sensíveis, como senhas, nunca sejam enviados nas respostas JSON da API.
 
-### Controle de Tráfego (Rate Limiting)
+### 🚦 Controle de Tráfego (Rate Limiting)
 
 Para garantir a disponibilidade do serviço e proteger o sistema contra abusos, foram implementadas camadas de limitação de requisições (Rate Limiting):
 
@@ -96,7 +96,7 @@ Como o ambiente está configurado dentro de containers, utilize o `docker compos
 | **PATCH** | `/:id` | Altera o status de um agendamento (APROVADO, RECUSADO ou PENDENTE). | Protegido |
 | **DELETE** | `/:id` | Remove permanentemente um agendamento do banco de dados. | Protegido |
 
-### Consulta de Disponibilidade (`/agendamentos/disponibilidade`)
+### Consulta de Disponibilidade (`/agendamentos`)
 
 Esta rota permite que o frontend consulte em tempo real quais horários ainda estão livres para uma determinada data, facilitando a experiência do usuário e evitando tentativas de agendamento em horários ocupados.
 
