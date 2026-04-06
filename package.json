@@ -6,7 +6,7 @@
   "scripts": {
   "start": "node src/server.js",
   "dev": "nodemon -L src/server.js",
-  "db:reset": "rm -f src/database/dev.db && touch src/database/dev.db && npx knex migrate:latest",
+  "db:reset": "rm -f src/database/dev.db && npx knex migrate:latest",
   "db:seed": "npx knex seed:run"
 },
   "repository": {
