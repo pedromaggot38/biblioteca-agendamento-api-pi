@@ -1,67 +1,87 @@
 # 📚 Sistema de Agendamento Biblioteca ETEC - Projeto Integrador UNIVESP
 
-Este é o back-end do sistema de agendamento para serviços de levantamento bibliográfico e normalização de trabalhos acadêmicos. Desenvolvido para facilitar a organização da biblioteca, o sistema permite que alunos agendem horários específicos, garantindo que não haja conflitos de agenda.
+Este é o back-end do sistema de agendamento para serviços de levantamento bibliográfico e normalização de trabalhos acadêmicos. Desenvolvido para facilitar a organização da biblioteca, o sistema agora conta com um portal administrativo seguro para o bibliotecário.
 
 ## 🚀 Tecnologias Utilizadas
 
 * **Runtime**: Node.js
 * **Framework**: Express 5
 * **Banco de Dados**: SQLite3 (gerenciado via Knex.js)
+* **Autenticação**: JSON Web Token (JWT) com `bcryptjs` para hashing de senhas
 * **Validação**: Zod
 * **Containerização**: Docker & Docker Compose
 
-## 🛠️ Regras de Negócio Implementadas
+## 🛡️ Segurança e Autenticação
 
-Para garantir a integridade dos dados e da agenda, o sistema possui as seguintes travas automáticas:
+O sistema implementa uma arquitetura de segurança robusta para proteger o gerenciamento dos agendamentos:
 
-* **Horários**: Apenas entre **08:00 e 16:00**, em intervalos de **30 minutos**.
-* **Data**: Não é permitido agendar para datas retroativas (anteriores a hoje).
-* **Conflitos**: O sistema impede que dois alunos agendem o mesmo horário no mesmo dia.
-* **Consistência**: O RM deve ter exatamente 5 dígitos e o e-mail deve ser o institucional (`@etec.sp.gov.br`).
-* **Vínculo**: Uma vez que um RM é cadastrado com um e-mail, o sistema bloqueia tentativas de usar esse RM com e-mails diferentes.
-* **Padronização**: Nomes e cursos são automaticamente formatados para *Title Case*.
+* **Proteção de Rotas**: Operações sensíveis (como alterar status ou excluir agendamentos) exigem um token **JWT (Bearer)** válido.
+* **Criptografia**: As senhas dos administradores nunca são salvas em texto puro, sendo processadas com `bcryptjs`.
+* **Primeiro Registro**: O sistema possui uma trava de segurança que só permite a criação de um administrador se a tabela de usuários estiver vazia.
+* **Middleware de Autorização**: Valida a integridade e a expiração do token em cada requisição protegida.
+* **Sanitização de Respostas**: O utilitário `resfc` garante que campos sensíveis, como senhas, nunca sejam enviados nas respostas JSON da API.
+
+## ⚙️ Configuração de Ambiente (.env)
+
+O projeto utiliza variáveis de ambiente para gerenciar configurações sensíveis e facilitar a portabilidade entre ambientes (desenvolvimento/produção).
+
+**Exemplo de `.env`:**
+```env
+PORT=3000
+NODE_ENV=development
+JWT_SECRET=sua_chave_ultra_secreta_aqui
+DATABASE_FILENAME=./src/database/dev.db
+```
 
 ## 🐳 Como Rodar com Docker
 
-Você não precisa ter o Node.js instalado na sua máquina física, apenas o **Docker**.
-
 ### 1. Iniciar o Projeto
-Suba os containers pela primeira vez (isso instalará as dependências e iniciará o servidor):
+Certifique-se de ter o arquivo `.env` configurado na raiz e execute:
 ```bash
 docker compose up --build
 ```
-
 ### 2. Comandos de Banco de Dados (Database)
-Como o ambiente está dentro do container, utilize o `docker compose exec` para rodar os comandos do banco:
 
-* **Reset Completo**: Apaga o banco atual, recria as tabelas:
+Como o ambiente está configurado dentro de containers, utilize o `docker compose exec` para executar os comandos de gerenciamento do banco de dados SQLite:
+
+* **Reset Completo**: Este comando apaga o arquivo do banco de dados atual (`dev.db`), recria todas as tabelas através das migrations e deixa o sistema pronto para o uso inicial.
     ```bash
     docker compose exec app npm run db:reset
     ```
-* **Apenas Inserir Dados (Seeds)**: Adiciona os 15 agendamentos de teste (seeds) sem apagar o banco:
+* **Inserir Dados de Teste (Seeds)**: Adiciona automaticamente 15 agendamentos de teste ao banco de dados para validar a interface e o funcionamento do sistema.
     ```bash
     docker compose exec app npm run db:seed
     ```
 
-## 🛣️ Rotas da API (`/api/v1/agendamentos`)
+---
 
-| Método | Rota | Descrição | Parâmetros de Query |
+## 🛣️ Rotas da API (`/api/v1`)
+
+### Autenticação (`/auth`)
+
+| Método | Rota | Descrição | Acesso |
 | :--- | :--- | :--- | :--- |
-| **GET** | `/` | Lista agendamentos paginados | `page`, `limit`, `status` |
-| **POST** | `/` | Solicita um novo agendamento | (Body JSON) |
-| **PATCH** | `/:id/status` | Altera status (APROVADO/RECUSADO) | `id` (na URL) |
-| **DELETE** | `/:id` | Remove um agendamento do sistema | `id` (na URL) |
+| **GET** | `/status` | Verifica se já existe um administrador cadastrado no sistema. | Público |
+| **POST** | `/register` | Registra o primeiro administrador (bloqueado se já houver um cadastro). | Público |
+| **POST** | `/login` | Autentica o bibliotecário e retorna o Token JWT para acesso protegido. | Público |
+| **GET** | `/me` | Valida o token e retorna os dados do administrador logado. | Protegido |
 
-### Exemplo de Filtro por Status
-Para ver apenas os agendamentos pendentes no dashboard:
-`GET http://localhost:3000/api/v1/agendamentos?status=PENDENTE`
+### Agendamentos (`/agendamentos`)
+
+| Método | Rota | Descrição | Acesso |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/` | Lista todos os agendamentos com suporte a paginação e filtros. | Protegido |
+| **POST** | `/` | Cria uma nova solicitação de agendamento (validação rigorosa via Zod). | Público |
+| **PATCH** | `/:id` | Altera o status de um agendamento (APROVADO, RECUSADO ou PENDENTE). | Protegido |
+| **DELETE** | `/:id` | Remove permanentemente um agendamento do banco de dados. | Protegido |
 
 ---
 
 ## 📂 Estrutura de Pastas Principal
 
-* `src/controllers/`: Lógica de recebimento de requisições.
-* `src/services/`: Regras de negócio e comunicação com o banco.
-* `src/models/`: Esquemas de validação (Zod).
-* `src/utils/controllers/`: Validadores específicos de data e hora.
-* `src/database/migrations/`: Estrutura das tabelas do banco.
+* **`src/controllers/`**: Responsável por receber as requisições, extrair dados e enviar as respostas padronizadas via `resfc`.
+* **`src/services/`**: Camada onde reside toda a inteligência do sistema, regras de negócio e comunicação com o banco de dados.
+* **`src/middlewares/`**: Inclui a proteção de rotas JWT, o validador de schemas Zod e o tratamento global de erros.
+* **`src/models/`**: Definição dos schemas de validação para garantir a integridade dos dados de entrada.
+* **`src/database/`**: Contém as migrations (estrutura das tabelas) e seeds (dados iniciais) do Knex.
+* **`src/utils/`**: Funções auxiliares para formatação de strings, manipulação de datas e respostas da API.

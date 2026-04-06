@@ -2,8 +2,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
 
-const JWT_SECRET = 'SUA_CHAVE_SECRETA_MUITO_SEGURA';
-
 export const registrarPrimeiroAdmin = async (dados) => {
   const { nome, email, password } = dados;
 
@@ -35,7 +33,7 @@ export const autenticarUsuario = async (email, password) => {
     throw error;
   }
 
-  const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '8h' });
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '4h' });
 
   return {
     token,

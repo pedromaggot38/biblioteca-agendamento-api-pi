@@ -22,7 +22,7 @@ const auth = (req, res, next) => {
   const token = parts[1];
 
   try {
-    const decoded = jwt.verify(token, 'SUA_CHAVE_SECRETA_MUITO_SEGURA');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Adiciona os dados do usuário na requisição para uso futuro
     req.userId = decoded.id;

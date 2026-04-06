@@ -2,7 +2,7 @@ export default {
   development: {
     client: 'sqlite3',
     connection: {
-      filename: './src/database/dev.db',
+      filename: process.env.DATABASE_FILENAME || './src/database/dev.db',
     },
     useNullAsDefault: true,
     migrations: {
