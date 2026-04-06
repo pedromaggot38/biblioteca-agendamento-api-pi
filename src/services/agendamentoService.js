@@ -89,12 +89,12 @@ export const criarAgendamento = async (dados) => {
 export const atualizarStatusAgendamento = async (id, status) => {
   const agora = getNowBR();
 
-  const rowsAffected = await db('agendamentos').where({ id }).update({
+  const agendamento = await db('agendamentos').where({ id }).update({
     status,
     updated_at: agora,
   });
 
-  if (!rowsAffected) {
+  if (!agendamento) {
     const error = new Error('Agendamento não encontrado para atualização.');
     error.statusCode = 404;
     throw error;
@@ -104,9 +104,9 @@ export const atualizarStatusAgendamento = async (id, status) => {
 };
 
 export const excluirAgendamento = async (id) => {
-  const rowsAffected = await db('agendamentos').where({ id }).delete();
+  const agendamento = await db('agendamentos').where({ id }).delete();
 
-  if (!rowsAffected) {
+  if (!agendamento) {
     const error = new Error('Agendamento não encontrado para exclusão.');
     error.statusCode = 404;
     throw error;

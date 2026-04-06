@@ -1,13 +1,13 @@
 import catchAsync from '../utils/catchAsync.js';
 import { resfc } from '../utils/response.js';
-import * as agendamentoService from '../services/agendamentoService.js';
+import { atualizarStatusAgendamento, criarAgendamento, excluirAgendamento, listarAgendamentosPaginados } from '../services/agendamentoService.js'
 
 export const getAllAgendamentos = catchAsync(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const status = req.query.status || null;
 
-  const result = await agendamentoService.listarAgendamentosPaginados(
+  const result = await listarAgendamentosPaginados(
     page,
     limit,
     status,
@@ -23,7 +23,7 @@ export const getAllAgendamentos = catchAsync(async (req, res, next) => {
 });
 
 export const createAgendamento = catchAsync(async (req, res, next) => {
-  const novoAgendamento = await agendamentoService.criarAgendamento(req.body);
+  const novoAgendamento = await criarAgendamento(req.body);
 
   return resfc(
     res,
@@ -38,7 +38,7 @@ export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
   const { status } = req.body;
 
   const agendamentoAtualizado =
-    await agendamentoService.atualizarStatusAgendamento(id, status);
+    await atualizarStatusAgendamento(id, status);
 
   return resfc(
     res,
@@ -51,7 +51,7 @@ export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
 export const deleteAgendamento = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
-  await agendamentoService.excluirAgendamento(id);
+  await excluirAgendamento(id);
 
   return resfc(res, 200, null, 'Agendamento removido do sistema.');
 });
