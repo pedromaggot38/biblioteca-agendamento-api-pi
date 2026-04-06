@@ -3,7 +3,9 @@ import catchAsync from '../utils/catchAsync.js';
 import { resfc } from '../utils/response.js';
 
 export const register = catchAsync(async (req, res) => {
-  const usuario = await registrarPrimeiroAdmin(req.body);
+  const { passwordConfirm, ...dados } = req.body;
+
+  const usuario = await registrarPrimeiroAdmin(dados);
 
   return resfc(res, 201, usuario, 'Primeiro administrador criado com sucesso!');
 });

@@ -10,7 +10,13 @@ export const registerSchema = z.object({
     .email('E-mail inválido'),
   password: z
     .string()
-    .min(4, 'A senha deve ter no mínimo 4 caracteres')
+    .min(4, 'A senha deve ter no mínimo 4 caracteres'),
+  passwordConfirm: z
+      .string()
+      .min(1, 'A confirmação de senha é obrigatória')
+  }).refine((data) => data.password === data.passwordConfirm, {
+    message: "As senhas não coincidem",
+    path: ["passwordConfirm"],
 });
 
 export const loginSchema = z.object({

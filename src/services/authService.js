@@ -3,25 +3,18 @@ import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
 
 export const registrarPrimeiroAdmin = async (dados) => {
-  const { nome, email, password } = dados;
-
   const { total } = await db('users').count('id as total').first();
   
   if (total > 0) {
-    const error = new Error('O sistema já possui um administrador cadastrado.');
-    error.statusCode = 403;
-    throw error;
+    throw Object.assign(new Error('Administrador já cadastrado'), { statusCode: 403 });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
   const [id] = await db('users').insert({
-    nome,
-    email,
-    password: hashedPassword,
+    ...dados,
+    password: await bcrypt.hash(dados.password, 10)
   });
 
-  return { id, nome, email };
+  return { id, nome: dados.nome, email: dados.email };
 };
 
 export const autenticarUsuario = async (email, password) => {
