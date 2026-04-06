@@ -1,4 +1,5 @@
 import express from 'express';
+import auth from '../middlewares/auth.js';
 import validate from '../middlewares/validate.js';
 import {
   agendamentoSchema,
@@ -10,10 +11,11 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(getAllAgendamentos)
+  .get(auth, getAllAgendamentos)
   .post(validate(agendamentoSchema), createAgendamento);
 
-router.patch('/:id/status', validate(statusSchema), updateStatusAgendamento);
-router.delete('/:id', deleteAgendamento);
-
+router
+  .route('/:id/')
+  .patch(auth, validate(statusSchema), updateStatusAgendamento)
+  .delete(auth, deleteAgendamento);
 export default router;
