@@ -43,6 +43,21 @@ export const autenticarUsuario = async (email, password) => {
   };
 };
 
+export const getMe = async (id) => {
+  const user = await db('users')
+    .where({ id })
+    .select('id', 'nome', 'email')
+    .first();
+
+  if (!user) {
+    const error = new Error('Sessão inválida ou usuário inexistente.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  return user;
+};
+
 export const verificarSistemaInicializado = async () => {
   const result = await db('users').count('id as total').first();
   

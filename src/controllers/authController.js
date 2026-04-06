@@ -1,4 +1,4 @@
-import { autenticarUsuario, registrarPrimeiroAdmin, verificarSistemaInicializado } from '../services/authService.js';
+import { autenticarUsuario, getMe, registrarPrimeiroAdmin, verificarSistemaInicializado } from '../services/authService.js';
 import catchAsync from '../utils/catchAsync.js';
 import { resfc } from '../utils/response.js';
 
@@ -13,6 +13,12 @@ export const login = catchAsync(async (req, res) => {
   const result = await autenticarUsuario(email, password);
   
   return resfc(res, 200, result, 'Login realizado com sucesso!');
+});
+
+export const me = catchAsync(async (req, res) => {
+  const user = await getMe(req.userId);
+  
+  return resfc(res, 200, user, 'Sessão validada com sucesso!');
 });
 
 export const getSystemStatus = catchAsync(async (req, res) => {
