@@ -5,9 +5,11 @@ import {
   agendamentoSchema,
   statusSchema,
 } from '../models/agendamentoSchema.js';
-import { createAgendamento, deleteAgendamento, getAllAgendamentos, updateStatusAgendamento } from '../controllers/agendamentoController.js';
+import { createAgendamento, deleteAgendamento, getAllAgendamentos, getDisponibilidade, updateStatusAgendamento } from '../controllers/agendamentoController.js';
 
 const router = express.Router();
+
+router.get('/disponibilidade', getDisponibilidade);
 
 router
   .route('/')
