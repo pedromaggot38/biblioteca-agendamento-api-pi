@@ -75,6 +75,34 @@ Como o ambiente está configurado dentro de containers, utilize o `docker compos
 | **PATCH** | `/:id` | Altera o status de um agendamento (APROVADO, RECUSADO ou PENDENTE). | Protegido |
 | **DELETE** | `/:id` | Remove permanentemente um agendamento do banco de dados. | Protegido |
 
+### Consulta de Disponibilidade (`/agendamentos/disponibilidade`)
+
+Esta rota permite que o frontend consulte em tempo real quais horários ainda estão livres para uma determinada data, facilitando a experiência do usuário e evitando tentativas de agendamento em horários ocupados.
+
+| Método | Rota | Descrição | Acesso |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/disponibilidade` | Retorna um array de strings com horários vagos | Público |
+
+#### Parâmetros de Query (Query Params)
+A rota espera obrigatoriamente o parâmetro `data` no formato `AAAA-MM-DD`.
+
+**Exemplo de uso:**
+`GET http://localhost:3000/api/v1/agendamentos/disponibilidade?data=2026-05-10`
+
+**Resposta de Sucesso (200 OK):**
+```json
+{
+  "status": "success",
+  "message": "Horários disponíveis para 2026-05-10",
+  "data": [
+    "08:30",
+    "09:00",
+    "10:30",
+    "14:00",
+    "16:00"
+  ]
+}
+
 ---
 
 ## 📂 Estrutura de Pastas Principal

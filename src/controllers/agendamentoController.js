@@ -25,10 +25,6 @@ export const getAllAgendamentos = catchAsync(async (req, res, next) => {
 export const getDisponibilidade = catchAsync(async (req, res) => {
   const { data } = req.query;
 
-  if (!data) {
-    return res.status(400).json({ status: 'error', message: 'Data é obrigatória.' });
-  }
-
   const horariosLivres = await buscarHorariosDisponiveis(data);
 
   return resfc(

@@ -31,4 +31,10 @@ export const statusSchema = z.object({
   }),
 });
 
+export const disponibilidadeSchema = z.object({
+  data: z
+    .string({ required_error: "A data é obrigatória" })
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (deve ser AAAA-MM-DD)')
+});
+
 export { agendamentoSchema };

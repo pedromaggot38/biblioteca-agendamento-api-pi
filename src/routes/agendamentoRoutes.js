@@ -3,13 +3,14 @@ import auth from '../middlewares/auth.js';
 import validate from '../middlewares/validate.js';
 import {
   agendamentoSchema,
+  disponibilidadeSchema,
   statusSchema,
 } from '../models/agendamentoSchema.js';
 import { createAgendamento, deleteAgendamento, getAllAgendamentos, getDisponibilidade, updateStatusAgendamento } from '../controllers/agendamentoController.js';
 
 const router = express.Router();
 
-router.get('/disponibilidade', getDisponibilidade);
+router.get('/disponibilidade', validate(disponibilidadeSchema, 'query'), getDisponibilidade);
 
 router
   .route('/')
