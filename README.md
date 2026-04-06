@@ -102,6 +102,7 @@ A rota espera obrigatoriamente o parâmetro `data` no formato `AAAA-MM-DD`.
     "16:00"
   ]
 }
+```
 
 ---
 
