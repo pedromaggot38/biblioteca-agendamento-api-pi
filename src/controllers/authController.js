@@ -1,35 +1,55 @@
-import { autenticarUsuario, getMe, registrarPrimeiroAdmin, verificarSistemaInicializado } from '../services/authService.js';
+import { 
+  autenticarUsuario, 
+  getMe, 
+  registrarPrimeiroAdmin, 
+  verificarSistemaInicializado 
+} from '../services/authService.js';
 import catchAsync from '../utils/catchAsync.js';
-import { resfc } from '../utils/response.js';
+import { resfc } from '../utils/resfc.js';
 
 export const register = catchAsync(async (req, res) => {
-  const { passwordConfirm, ...dados } = req.body;
+  const usuario = await registrarPrimeiroAdmin(req.body);
 
-  const usuario = await registrarPrimeiroAdmin(dados);
-
-  return resfc(res, 201, usuario, 'Primeiro administrador criado com sucesso!');
+  return resfc({
+    res,
+    code: 201,
+    data: usuario,
+    message: 'Primeiro administrador criado com sucesso!'
+  });
 });
 
 export const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const result = await autenticarUsuario(email, password);
   
-  return resfc(res, 200, result, 'Login realizado com sucesso!');
+  return resfc({
+    res,
+    code: 200,
+    data: result,
+    message: 'Login realizado com sucesso!'
+  });
 });
 
 export const me = catchAsync(async (req, res) => {
   const user = await getMe(req.userId);
   
-  return resfc(res, 200, user, 'Sessão validada com sucesso!');
+  return resfc({
+    res,
+    code: 200,
+    data: user,
+    message: 'Sessão validada com sucesso!'
+  });
 });
 
 export const getSystemStatus = catchAsync(async (req, res) => {
   const inicializado = await verificarSistemaInicializado();
   
-  return resfc(
+  return resfc({
     res, 
-    200, 
-    { inicializado }, 
-    inicializado ? 'Sistema pronto para login.' : 'Nenhum administrador encontrado. Redirecionar para registro.'
-  );
+    code: 200, 
+    data: { inicializado }, 
+    message: inicializado 
+      ? 'Sistema pronto para login.' 
+      : 'Nenhum administrador encontrado. Redirecionar para registro.'
+  });
 });
