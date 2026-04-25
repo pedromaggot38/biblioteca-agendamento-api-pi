@@ -7,6 +7,7 @@ import {
   validarHorarioAgendamento,
   validarVinculoExistente,
 } from '../utils/controllers/agendamentoUtils.js';
+import AppError from '../utils/appError.js';
 
 import { formatTitleCase } from '../utils/stringUtils.js';
 
@@ -96,9 +97,7 @@ export const atualizarStatusAgendamento = async (id, status) => {
   });
 
   if (!agendamento) {
-    const error = new Error('Agendamento não encontrado para atualização.');
-    error.statusCode = 404;
-    throw error;
+    throw new AppError('Agendamento não encontrado para atualização.', 404);
   }
 
   return { id, status };
@@ -108,9 +107,7 @@ export const excluirAgendamento = async (id) => {
   const agendamento = await db('agendamentos').where({ id }).delete();
 
   if (!agendamento) {
-    const error = new Error('Agendamento não encontrado para exclusão.');
-    error.statusCode = 404;
-    throw error;
+    throw new AppError('Agendamento não encontrado para exclusão.', 404);
   }
 
   return true;
@@ -120,8 +117,8 @@ export const buscarHorariosDisponiveis = async (data) => {
   if (data < getTodayBR()) return [];
 
   const todosHorarios = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
-    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
     '14:00', '14:30', '15:00', '15:30', '16:00'
   ];
 

@@ -1,8 +1,5 @@
 import AppError from '../utils/appError.js';
 
-/**
- * Traduz nomes de entidades/campos se necessário.
- */
 const translateField = (field) => {
   const translations = {
     rm: 'RM',
@@ -32,9 +29,14 @@ const sendErrorDev = (rawErr, treatedErr, res) => {
   res.status(treatedErr.statusCode || 500).json({
     status: treatedErr.status,
     message: treatedErr.message,
-    errors: treatedErr.errors || [],
+    productionPreview: {
+      status: treatedErr.status,
+      message: treatedErr.message,
+      errors: treatedErr.errors || [],
+      isOperational: treatedErr.isOperational || false,
+    },
+    error: rawErr,
     stack: rawErr.stack,
-    error: rawErr
   });
 };
 
@@ -58,13 +60,12 @@ const enrichError = (err) => {
   let error = err;
 
   if (err.name === 'ZodError') error = handleZodError(err);
-  
   if (err.name === 'JsonWebTokenError') error = handleJWTError();
   if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
 
   if (err.code === 'SQLITE_CONSTRAINT') {
-    const message = err.message.includes('UNIQUE') 
-      ? 'Este registro já existe no sistema.' 
+    const message = err.message.includes('UNIQUE')
+      ? 'Este registro já existe no sistema.'
       : 'Erro de restrição no banco de dados.';
     error = new AppError(message, 400);
   }

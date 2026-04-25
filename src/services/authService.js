@@ -1,12 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
+import AppError from '../utils/appError.js';
 
 export const registrarPrimeiroAdmin = async (dados) => {
   const { total } = await db('users').count('id as total').first();
-  
+
   if (total > 0) {
-    throw Object.assign(new Error('Administrador já cadastrado'), { statusCode: 403 });
+    throw new AppError('O sistema já possui um administrador cadastrado.', 403);
   }
 
   const [id] = await db('users').insert({
@@ -21,9 +22,7 @@ export const autenticarUsuario = async (email, password) => {
   const user = await db('users').where({ email }).first();
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    const error = new Error('E-mail ou senha incorretos.');
-    error.statusCode = 401;
-    throw error;
+    throw new AppError('E-mail ou senha incorretos.', 401);
   }
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '4h' });
@@ -41,9 +40,7 @@ export const getMe = async (id) => {
     .first();
 
   if (!user) {
-    const error = new Error('Sessão inválida ou usuário inexistente.');
-    error.statusCode = 401;
-    throw error;
+    throw new AppError('Sessão inválida ou usuário inexistente.', 401);
   }
 
   return user;
@@ -51,6 +48,6 @@ export const getMe = async (id) => {
 
 export const verificarSistemaInicializado = async () => {
   const result = await db('users').count('id as total').first();
-  
+
   return parseInt(result.total) > 0;
 };
