@@ -1,19 +1,13 @@
 import catchAsync from '../utils/catchAsync.js';
 import { resfc } from '../utils/resfc.js';
-import { 
-  atualizarStatusAgendamento, 
-  buscarHorariosDisponiveis, 
-  criarAgendamento, 
-  excluirAgendamento, 
-  listarAgendamentosPaginados 
-} from '../services/agendamentoService.js';
+import * as agendamentoService from '../services/agendamentoService.js';
 
 export const getAllAgendamentos = catchAsync(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const status = req.query.status || null;
 
-  const result = await listarAgendamentosPaginados(
+  const result = await agendamentoService.listarAgendamentosPaginados(
     page,
     limit,
     status,
@@ -28,21 +22,35 @@ export const getAllAgendamentos = catchAsync(async (req, res, next) => {
   });
 });
 
+export const getAgendamento = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const agendamento = await agendamentoService.getAgendamentoPorId(id);
+
+  return resfc({
+    res,
+    code: 200,
+    data: agendamento,
+    message: 'Agendamento recuperado com sucesso!',
+  });
+});
+
 export const getDisponibilidade = catchAsync(async (req, res) => {
   const { data } = req.query;
 
-  const horariosLivres = await buscarHorariosDisponiveis(data);
+  const horariosLivres =
+    await agendamentoService.buscarHorariosDisponiveis(data);
 
   return resfc({
-    res, 
-    code: 200, 
-    data: horariosLivres, 
-    message: `Horários disponíveis para ${data}`
+    res,
+    code: 200,
+    data: horariosLivres,
+    message: `Horários disponíveis para ${data}`,
   });
 });
 
 export const createAgendamento = catchAsync(async (req, res, next) => {
-  const novoAgendamento = await criarAgendamento(req.body);
+  const novoAgendamento = await agendamentoService.criarAgendamento(req.body);
 
   return resfc({
     res,
@@ -56,7 +64,8 @@ export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const agendamentoAtualizado = await atualizarStatusAgendamento(id, status);
+  const agendamentoAtualizado =
+    await agendamentoService.atualizarStatusAgendamento(id, status);
 
   return resfc({
     res,
@@ -69,11 +78,11 @@ export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
 export const deleteAgendamento = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
-  await excluirAgendamento(id);
+  await agendamentoService.excluirAgendamento(id);
 
   return resfc({
-    res, 
-    code: 200, 
-    message: 'Agendamento removido do sistema.'
+    res,
+    code: 200,
+    message: 'Agendamento removido do sistema.',
   });
 });

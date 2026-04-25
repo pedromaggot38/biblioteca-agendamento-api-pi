@@ -45,6 +45,16 @@ export const listarAgendamentosPaginados = async (
   };
 };
 
+export const getAgendamentoPorId = async (id) => {
+  const agendamento = await db('agendamentos').where({ id }).first();
+
+  if (!agendamento) {
+    throw new AppError('Agendamento não encontrado.', 404);
+  }
+
+  return agendamento;
+};
+
 export const criarAgendamento = async (dados) => {
   const email = dados.email.trim().toLowerCase();
   const nome = formatTitleCase(dados.nome);
@@ -117,9 +127,23 @@ export const buscarHorariosDisponiveis = async (data) => {
   if (data < getTodayBR()) return [];
 
   const todosHorarios = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00'
+    '08:00',
+    '08:30',
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
   ];
 
   const ocupados = await db('agendamentos')
@@ -127,5 +151,5 @@ export const buscarHorariosDisponiveis = async (data) => {
     .whereNot('status', 'RECUSADO')
     .pluck('horario');
 
-  return todosHorarios.filter(horario => !ocupados.includes(horario));
+  return todosHorarios.filter((horario) => !ocupados.includes(horario));
 };

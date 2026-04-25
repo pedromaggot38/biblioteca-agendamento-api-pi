@@ -6,20 +6,38 @@ import {
   disponibilidadeSchema,
   statusSchema,
 } from '../models/agendamentoSchema.js';
-import { createAgendamento, deleteAgendamento, getAllAgendamentos, getDisponibilidade, updateStatusAgendamento } from '../controllers/agendamentoController.js';
-import { apiLimiter, createAgendamentoLimiter } from '../middlewares/rateLimiter.js';
+import * as agendamentoController from '../controllers/agendamentoController.js';
+import {
+  apiLimiter,
+  createAgendamentoLimiter,
+} from '../middlewares/rateLimiter.js';
 
 const router = express.Router();
 
-router.get('/disponibilidade', apiLimiter, validate(disponibilidadeSchema, 'query'), getDisponibilidade);
+router.get(
+  '/disponibilidade',
+  apiLimiter,
+  validate(disponibilidadeSchema, 'query'),
+  agendamentoController.getDisponibilidade,
+);
 
 router
   .route('/')
-  .get(auth, getAllAgendamentos)
-  .post(createAgendamentoLimiter, validate(agendamentoSchema), createAgendamento);
+  .get(auth, agendamentoController.getAllAgendamentos)
+  .post(
+    createAgendamentoLimiter,
+    validate(agendamentoSchema),
+    agendamentoController.createAgendamento,
+  );
 
 router
   .route('/:id/')
-  .patch(auth, validate(statusSchema), updateStatusAgendamento)
-  .delete(auth, deleteAgendamento);
+  .get(auth, agendamentoController.getAgendamento)
+  .patch(
+    auth,
+    validate(statusSchema),
+    agendamentoController.updateStatusAgendamento,
+  )
+  .delete(auth, agendamentoController.deleteAgendamento);
+
 export default router;
