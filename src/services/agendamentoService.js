@@ -94,7 +94,6 @@ export const criarAgendamento = async (dados) => {
     email,
     curso,
     status: 'PENDENTE',
-    created_at: agora,
   };
 };
 
@@ -124,7 +123,8 @@ export const excluirAgendamento = async (id) => {
 };
 
 export const buscarHorariosDisponiveis = async (data) => {
-  if (data < getTodayBR()) return [];
+  const hoje = getTodayBR();
+  if (data < hoje) return [];
 
   const todosHorarios = [
     '08:00',
@@ -151,5 +151,16 @@ export const buscarHorariosDisponiveis = async (data) => {
     .whereNot('status', 'RECUSADO')
     .pluck('horario');
 
-  return todosHorarios.filter((horario) => !ocupados.includes(horario));
+  let disponiveis = todosHorarios.filter((h) => !ocupados.includes(h));
+
+  if (data === hoje) {
+    const agora = new Date().toLocaleTimeString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    disponiveis = disponiveis.filter((horario) => horario > agora);
+  }
+
+  return disponiveis;
 };

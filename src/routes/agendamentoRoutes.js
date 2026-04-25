@@ -1,5 +1,5 @@
 import express from 'express';
-import auth from '../middlewares/auth.js';
+import protect from '../middlewares/auth.js';
 import validate from '../middlewares/validate.js';
 import {
   agendamentoSchema,
@@ -23,7 +23,7 @@ router.get(
 
 router
   .route('/')
-  .get(auth, agendamentoController.getAllAgendamentos)
+  .get(protect, agendamentoController.getAllAgendamentos)
   .post(
     createAgendamentoLimiter,
     validate(agendamentoSchema),
@@ -32,12 +32,12 @@ router
 
 router
   .route('/:id/')
-  .get(auth, agendamentoController.getAgendamento)
+  .get(protect, agendamentoController.getAgendamento)
   .patch(
-    auth,
+    protect,
     validate(statusSchema),
     agendamentoController.updateStatusAgendamento,
   )
-  .delete(auth, agendamentoController.deleteAgendamento);
+  .delete(protect, agendamentoController.deleteAgendamento);
 
 export default router;

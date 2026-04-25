@@ -1,39 +1,37 @@
 import jwt from 'jsonwebtoken';
+import db from '../config/db.js';
+import catchAsync from '../utils/catchAsync.js';
+import AppError from '../utils/appError.js';
 
-const auth = (req, res, next) => {
+const protect = catchAsync(async (req, res, next) => {
   const authHeader = req.header('Authorization');
 
   if (!authHeader) {
-    return res.status(401).json({ 
-      status: 'error', 
-      message: 'Acesso negado. Token não fornecido.' 
-    });
+    throw new AppError('Acesso negado. Token não fornecido.', 401);
   }
 
   const parts = authHeader.split(' ');
-  
+
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    return res.status(401).json({ 
-      status: 'error', 
-      message: 'Erro no formato do token. Use o padrão Bearer.' 
-    });
+    throw new AppError('Erro no formato do token. Use o padrão Bearer.', 401);
   }
 
   const token = parts[1];
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Adiciona os dados do usuário na requisição para uso futuro
-    req.userId = decoded.id;
-    
-    next();
-  } catch (error) {
-    return res.status(401).json({ 
-      status: 'error', 
-      message: 'Token inválido ou expirado.' 
-    });
+  const user = await db('users').where({ id: decoded.id }).first();
+
+  if (!user) {
+    throw new AppError(
+      'O usuário deste token não existe mais no sistema.',
+      401,
+    );
   }
-};
 
-export default auth;
+  req.userId = decoded.id;
+
+  next();
+});
+
+export default protect;
