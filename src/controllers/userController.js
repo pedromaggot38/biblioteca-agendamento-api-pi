@@ -25,3 +25,15 @@ export const updateMe = catchAsync(async (req, res) => {
     message: 'Dados atualizados com sucesso!'
   });
 });
+
+export const updatePassword = catchAsync(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  await userService.atualizarSenha(req.user.id, currentPassword, newPassword);
+
+  return resfc({
+    res,
+    code: 200,
+    message: 'Senha alterada com sucesso! Use a nova senha no próximo login.'
+  });
+});

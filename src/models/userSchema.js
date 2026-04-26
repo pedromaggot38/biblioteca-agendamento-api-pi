@@ -48,4 +48,8 @@ export const updatePasswordSchema = z
   .refine((data) => data.newPassword === data.passwordConfirm, {
     message: 'As novas senhas não coincidem',
     path: ['passwordConfirm'],
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: 'A nova senha não pode ser igual à senha atual',
+    path: ['newPassword'],
   });
