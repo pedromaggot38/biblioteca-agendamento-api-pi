@@ -11,27 +11,32 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   const parts = authHeader.split(' ');
-
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
     throw new AppError('Erro no formato do token. Use o padrão Bearer.', 401);
   }
 
   const token = parts[1];
 
-  const decoded = verificarToken(token);
+  try {
+    const decoded = verificarToken(token);
 
-  const user = await db('users').where({ id: decoded.id }).first();
+    if (!decoded || !decoded.id) {
+      return next(new AppError('Token inválido ou malformado.', 401));
+    }
 
-  if (!user) {
-    throw new AppError(
-      'O usuário deste token não existe mais no sistema.',
-      401,
-    );
+    const user = await db('users').where({ id: decoded.id }).first();
+
+    if (!user) {
+      return next(new AppError('O usuário não existe mais.', 401));
+    }
+
+    req.user = user;
+    req.userId = user.id;
+
+    next();
+  } catch (error) {
+    return next(new AppError('Sessão expirada ou inválida.', 401));
   }
-
-  req.userId = decoded.id;
-
-  next();
 });
 
 export default protect;

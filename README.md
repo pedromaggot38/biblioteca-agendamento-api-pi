@@ -56,7 +56,7 @@ JWT_EXPIRES_IN=6h
 DATABASE_FILENAME=./src/database/dev.db
 ```
 
-## 🐳 Como Rodar o Projeto
+## ▶️ Como Rodar o Projeto
 
 ### 1. Iniciar o Projeto
 
