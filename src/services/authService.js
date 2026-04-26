@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
 import AppError from '../utils/appError.js';
+import { gerarToken } from '../utils/controllers/authUtils.js';
 
 export const registrarPrimeiroAdmin = async (dados) => {
   const { total } = await db('users').count('id as total').first();
@@ -15,7 +15,12 @@ export const registrarPrimeiroAdmin = async (dados) => {
     password: await bcrypt.hash(dados.password, 10)
   });
 
-  return { id, nome: dados.nome, email: dados.email };
+  const token = gerarToken(id);
+
+  return { 
+    token, 
+    user: { id, nome: dados.nome, email: dados.email } 
+  };
 };
 
 export const autenticarUsuario = async (email, password) => {
@@ -25,7 +30,7 @@ export const autenticarUsuario = async (email, password) => {
     throw new AppError('E-mail ou senha incorretos.', 401);
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '4h' });
+  const token = gerarToken(user.id);
 
   return {
     token,

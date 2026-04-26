@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
+import { verificarToken } from '../utils/controllers/authUtils.js';
 
 const protect = catchAsync(async (req, res, next) => {
   const authHeader = req.header('Authorization');
@@ -18,7 +18,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   const token = parts[1];
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = verificarToken(token);
 
   const user = await db('users').where({ id: decoded.id }).first();
 

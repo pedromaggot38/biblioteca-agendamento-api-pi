@@ -9,7 +9,6 @@ import { resfc } from '../utils/resfc.js';
 
 export const register = catchAsync(async (req, res) => {
   const { passwordConfirm, ...userData } = req.body
-
   const usuario = await registrarPrimeiroAdmin(userData);
 
   return resfc({
@@ -22,6 +21,7 @@ export const register = catchAsync(async (req, res) => {
 
 export const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
+  
   const result = await autenticarUsuario(email, password);
 
   return resfc({
