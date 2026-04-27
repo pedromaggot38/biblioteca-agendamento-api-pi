@@ -106,36 +106,50 @@ Como o ambiente está configurado dentro de containers, utilize o `docker compos
 
 ### Autenticação (`/auth`)
 
-| Método   | Rota        | Descrição                                                               | Acesso    |
-| :------- | :---------- | :---------------------------------------------------------------------- | :-------- |
-| **GET**  | `/status`   | Verifica se já existe um administrador cadastrado no sistema.           | Público   |
-| **POST** | `/register` | Registra o primeiro administrador (bloqueado se já houver um cadastro). | Público   |
-| **POST** | `/login`    | Autentica o bibliotecário e retorna o Token JWT para acesso protegido.  | Público   |
-| **GET**  | `/me`       | Valida o token e retorna os dados do administrador logado.              | Protegido |
+| Método   | Rota        | Descrição                                                               | Acesso  |
+| :------- | :---------- | :---------------------------------------------------------------------- | :------ |
+| **POST** | `/login`    | Autentica o bibliotecário e retorna o Token JWT para acesso protegido.  | Público |
+| **POST** | `/register` | Registra o primeiro administrador (bloqueado se já houver um cadastro). | Público |
+| **GET**  | `/status`   | Verifica se já existe um administrador cadastrado no sistema.           | Público |
 
-### Agendamentos (`/agendamentos`)
+### Usuário (`/users`)
 
-| Método     | Rota   | Descrição                                                              | Acesso    |
-| :--------- | :----- | :--------------------------------------------------------------------- | :-------- |
-| **GET**    | `/`    | Lista todos os agendamentos com suporte a paginação e filtros.         | Protegido |
-| **POST**   | `/`    | Cria uma nova solicitação de agendamento (validação rigorosa via Zod). | Público   |
-| **PATCH**  | `/:id` | Altera o status de um agendamento (APROVADO, RECUSADO ou PENDENTE).    | Protegido |
-| **DELETE** | `/:id` | Remove permanentemente um agendamento do banco de dados.               | Protegido |
+| Método    | Rota           | Descrição                                   | Acesso    |
+| :-------- | :------------- | :------------------------------------------ | :-------- |
+| **GET**   | `/me`          | Verifica e retorna dados do usuário logado. | Protegido |
+| **PATCH** | `/me`          | Altera dados do usuário logado.             | Protegido |
+| **PATCH** | `/me/password` | Altera senha do usuário logado.             | Protegido |
 
-### Consulta de Disponibilidade (`/agendamentos`)
+### Agendamento (`/agendamentos`)
 
-Esta rota permite que o frontend consulte em tempo real quais horários ainda estão livres para uma determinada data, facilitando a experiência do usuário e evitando tentativas de agendamento em horários ocupados.
+| Método     | Rota               | Descrição                                                              | Acesso    |
+| :--------- | :----------------- | :--------------------------------------------------------------------- | :-------- |
+| **GET**    | `/`                | Lista todos os agendamentos com suporte a paginação e filtros.         | Protegido |
+| **POST**   | `/`                | Cria uma nova solicitação de agendamento (validação rigorosa via Zod). | Público   |
+| **PATCH**  | `/:id`             | Altera o status de um agendamento (APROVADO, RECUSADO ou PENDENTE).    | Protegido |
+| **DELETE** | `/:id`             | Remove permanentemente um agendamento do banco de dados.               | Protegido |
+| **GET**    | `/disponibilidade` | Lista apenas os horários disponíveis para uma data específica.         | Público   |
 
-| Método  | Rota               | Descrição                                      | Acesso  |
-| :------ | :----------------- | :--------------------------------------------- | :------ |
-| **GET** | `/disponibilidade` | Retorna um array de strings com horários vagos | Público |
+### 🔍 Listagem, Busca e Paginação
 
-#### Parâmetros de Query (Query Params)
+O endpoint `GET /agendamentos` aceita parâmetros dinâmicos via **Query String**:
 
-A rota espera obrigatoriamente o parâmetro `data` no formato `AAAA-MM-DD`.
+**Requisição:**
+`GET /api/v1/agendamentos?page=1&limit=10&status=PENDENTE&search=Nome`
 
-**Exemplo de uso:**
-`GET http://localhost:3000/api/v1/agendamentos/disponibilidade?data=2026-05-10`
+| Parâmetro | Tipo     | Descrição                                        | Padrão |
+| :-------- | :------- | :----------------------------------------------- | :----- |
+| `page`    | `Number` | Índice da página para exibição.                  | `1`    |
+| `limit`   | `Number` | Quantidade de registros por página.              | `10`   |
+| `status`  | `Enum`   | Filtra por `PENDENTE`, `APROVADO` ou `RECUSADO`. | `null` |
+| `search`  | `String` | Busca parcial por Nome, E-mail ou RM.            | `null` |
+
+### 🕒 Consulta de Disponibilidade
+
+Utilizado pelo frontend para renderizar apenas horários vagos, evitando conflitos.
+
+**Requisição:**
+`GET /api/v1/agendamentos/disponibilidade?data=2026-05-10`
 
 **Resposta de Sucesso (200 OK):**
 
@@ -143,13 +157,11 @@ A rota espera obrigatoriamente o parâmetro `data` no formato `AAAA-MM-DD`.
 {
   "status": "success",
   "message": "Horários disponíveis para 2026-05-10",
-  "data": ["08:30", "09:00", "10:30", "14:00", "16:00"]
+  "data": ["08:30", "09:00", "14:00", "16:00"]
 }
 ```
 
----
-
-## 📂 Estrutura de Pastas Principal
+## 📂 Estrutura de Pastas
 
 - **`src/controllers/`**: Responsável por receber as requisições, extrair dados e enviar as respostas padronizadas via `resfc`.
 - **`src/services/`**: Camada onde reside toda a inteligência do sistema, regras de negócio e comunicação com o banco de dados.
@@ -157,3 +169,5 @@ A rota espera obrigatoriamente o parâmetro `data` no formato `AAAA-MM-DD`.
 - **`src/models/`**: Definição dos schemas de validação para garantir a integridade dos dados de entrada.
 - **`src/database/`**: Contém as migrations (estrutura das tabelas) e seeds (dados iniciais) do Knex.
 - **`src/utils/`**: Funções auxiliares para formatação de strings, manipulação de datas e respostas da API.
+- **`src/config/`**: Definição das configurações do sistema (Banco de Dados).
+- **`src/routes/`**: Definição das rotas da API.

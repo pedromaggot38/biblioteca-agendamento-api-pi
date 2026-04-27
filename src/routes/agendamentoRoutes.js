@@ -14,13 +14,6 @@ import {
 
 const router = express.Router();
 
-router.get(
-  '/disponibilidade',
-  apiLimiter,
-  validate(disponibilidadeSchema, 'query'),
-  agendamentoController.getDisponibilidade,
-);
-
 router
   .route('/')
   .get(protect, agendamentoController.getAllAgendamentos)
@@ -40,4 +33,10 @@ router
   )
   .delete(protect, agendamentoController.deleteAgendamento);
 
+router.get(
+  '/disponibilidade',
+  apiLimiter,
+  validate(disponibilidadeSchema, 'query'),
+  agendamentoController.getDisponibilidade,
+);
 export default router;
