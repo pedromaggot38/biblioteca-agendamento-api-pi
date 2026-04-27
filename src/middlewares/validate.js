@@ -2,7 +2,12 @@ const validate = (schema, target = 'body') => (req, res, next) => {
   try {
     const dadosValidados = schema.parse(req[target]);
 
-    req[target] = dadosValidados;
+    if (target === 'query' || target === 'params') {
+      Object.keys(req[target]).forEach(key => delete req[target][key]);
+      Object.assign(req[target], dadosValidados);
+    } else {
+      req[target] = dadosValidados;
+    }
 
     next();
   } catch (error) {
