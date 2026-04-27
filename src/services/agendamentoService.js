@@ -15,6 +15,7 @@ export const listarAgendamentosPaginados = async (
   page,
   limit,
   status = null,
+  search = null
 ) => {
   const offset = (page - 1) * limit;
 
@@ -24,6 +25,19 @@ export const listarAgendamentosPaginados = async (
   if (status) {
     query = query.where({ status });
     countQuery = countQuery.where({ status });
+  }
+
+  if (search) {
+    const searchPattern = `%${search}%`;
+
+    const buildSearch = (qb) => {
+      qb.where('nome', 'like', searchPattern)
+        .orWhere('email', 'like', searchPattern)
+        .orWhere('rm', 'like', searchPattern);
+    };
+
+    query = query.where(buildSearch);
+    countQuery = countQuery.where(buildSearch);
   }
 
   const agendamentos = await query
