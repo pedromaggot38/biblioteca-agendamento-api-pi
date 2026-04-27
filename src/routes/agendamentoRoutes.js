@@ -22,6 +22,13 @@ router
     validate(agendamentoSchema),
     agendamentoController.createAgendamento,
   );
+  
+router.get(
+  '/disponibilidade',
+  apiLimiter,
+  validate(disponibilidadeSchema, 'query'),
+  agendamentoController.getDisponibilidade,
+);
 
 router
   .route('/:id/')
@@ -33,10 +40,4 @@ router
   )
   .delete(protect, agendamentoController.deleteAgendamento);
 
-router.get(
-  '/disponibilidade',
-  apiLimiter,
-  validate(disponibilidadeSchema, 'query'),
-  agendamentoController.getDisponibilidade,
-);
 export default router;
