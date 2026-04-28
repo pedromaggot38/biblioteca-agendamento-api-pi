@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "npx knex migrate:latest && node src/server.js",
     "dev": "nodemon -L src/server.js",
     "start:dev": "npx knex migrate:latest && nodemon -L src/server.js",
     "db:reset": "rm -f src/database/dev.db && npx knex migrate:latest",

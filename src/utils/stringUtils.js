@@ -5,18 +5,17 @@
  */
 export const formatTitleCase = (str) => {
     if (!str) return '';
-  
     const excecoes = ['de', 'da', 'do', 'das', 'dos', 'e', 'para', 'com'];
-    
+    const siglas = ['ETEC', 'TI', 'ADM', 'RM'];
+
     return str
       .trim()
-      .toLowerCase()
       .split(' ')
       .map((palavra, index) => {
-        if (excecoes.includes(palavra) && index !== 0) {
-          return palavra;
-        }
-        return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+        const palavraLower = palavra.toLowerCase();
+        if (siglas.includes(palavra.toUpperCase())) return palavra.toUpperCase();
+        if (excecoes.includes(palavraLower) && index !== 0) return palavraLower;
+        return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
       })
       .join(' ');
-  };
+};

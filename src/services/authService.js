@@ -24,8 +24,7 @@ export const registrarPrimeiroAdmin = async (dados) => {
 
   return { 
     token,
-    is_verified,
-    user: { id, nome: dados.nome, email: dados.email } 
+    user: { id, nome: dados.nome, email: dados.email, is_verified } 
   };
 };
 
@@ -91,7 +90,7 @@ export const resetarSenha = async (token, novaSenha) => {
     password: hashedPassword,
     reset_token: null,
     reset_token_expires: null,
-    updated_at: new Date().toISOString()
+    updated_at: agora
   });
 };
 

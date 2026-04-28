@@ -155,23 +155,9 @@ export const buscarHorariosDisponiveis = async (data) => {
   if (data < hoje) return [];
 
   const todosHorarios = [
-    '08:00',
-    '08:30',
-    '09:00',
-    '09:30',
-    '10:00',
-    '10:30',
-    '11:00',
-    '11:30',
-    '12:00',
-    '12:30',
-    '13:00',
-    '13:30',
-    '14:00',
-    '14:30',
-    '15:00',
-    '15:30',
-    '16:00',
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+    '14:00', '14:30', '15:00', '15:30', '16:00',
   ];
 
   const ocupados = await db('agendamentos')
@@ -182,11 +168,7 @@ export const buscarHorariosDisponiveis = async (data) => {
   let disponiveis = todosHorarios.filter((h) => !ocupados.includes(h));
 
   if (data === hoje) {
-    const agora = new Date().toLocaleTimeString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    const agora = getTimeNowBR();
     disponiveis = disponiveis.filter((horario) => horario > agora);
   }
 

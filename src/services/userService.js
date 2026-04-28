@@ -3,6 +3,7 @@ import AppError from '../utils/appError.js';
 import bcrypt from 'bcryptjs';
 import { enviarTokenVerificacao } from '../utils/verificationUtils.js';
 import { gerarToken } from '../utils/controllers/authUtils.js';
+import { getNowBR } from '../utils/controllers/agendamentoUtils.js';
 
 export const getMe = async (id) => {
   const user = await db('users')
@@ -49,18 +50,16 @@ export const processarVerificacaoToken = async (userId, token) => {
   const updateData = {
     is_verified: true,
     verification_token: null,
-    updated_at: new Date().toISOString(),
+    updated_at: getNowBR(),
   };
 
   let mensagemSucesso = 'Conta verificada com sucesso!';
 
-  // AJUSTE NA LÓGICA: Só trata como troca se o new_email existir E for diferente do atual
   if (user.new_email && user.new_email !== user.email) {
     updateData.email = user.new_email;
     updateData.new_email = null;
     mensagemSucesso = 'E-mail alterado e verificado com sucesso!';
   } else {
-    // Se não for troca, garantimos que o new_email seja limpo de qualquer forma
     updateData.new_email = null;
   }
 
@@ -69,7 +68,6 @@ export const processarVerificacaoToken = async (userId, token) => {
     .update(updateData)
     .returning(['id', 'nome', 'email', 'is_verified']);
 
-  // Certifique-se de importar o gerarToken no topo do arquivo!
   const novoToken = gerarToken(user.id, true);
 
   return {
@@ -101,7 +99,7 @@ export const atualizarDadosUsuario = async (id, dados) => {
     .where({ id })
     .update({
       ...camposParaAtualizar,
-      updated_at: new Date()
+      updated_at: getNowBR()
     })
     .returning(['id', 'nome', 'email']);
 
@@ -111,19 +109,19 @@ export const atualizarDadosUsuario = async (id, dados) => {
 export const atualizarSenha = async (userId, currentPassword, newPassword) => {
   const user = await db('users').where({ id: userId }).first();
 
-  if (!user) throw new Error('Usuário não encontrado.');
+  if (!user) throw new AppError('Usuário não encontrado.', 404);
 
   const currentPasswordIsValid = await bcrypt.compare(
     currentPassword,
     user.password,
   );
   if (!currentPasswordIsValid) {
-    throw new Error('A senha atual está incorreta.');
+    throw new AppError('A senha atual está incorreta.');
   }
 
   const samePassword = await bcrypt.compare(newPassword, user.password);
   if (samePassword) {
-    throw new Error('A nova senha deve ser diferente da senha atual.');
+    throw new AppError('A nova senha deve ser diferente da senha atual.');
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -131,7 +129,7 @@ export const atualizarSenha = async (userId, currentPassword, newPassword) => {
 
   await db('users').where({ id: userId }).update({
     password: hashedPassword,
-    updated_at: new Date(),
+    updated_at: getNowBR(),
   });
 
   return true;
