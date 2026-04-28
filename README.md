@@ -12,6 +12,7 @@ Este é o back-end do sistema de agendamento para serviços de levantamento bibl
 - **Autenticação**: JSON Web Token (JWT) com `bcryptjs` para hashing de senhas
 - **Validação**: Zod
 - **Containerização**: Docker & Docker Compose
+- **Notificações**: Nodemailer (disparo de e-mails, tokens OTP e alertas de agendamento)
 
 ## 🛡️ Segurança
 
@@ -24,6 +25,12 @@ O sistema implementa uma arquitetura de segurança robusta para proteger o geren
 - **Primeiro Registro**: O sistema possui uma trava de segurança que só permite a criação de um administrador se a tabela de usuários estiver vazia.
 - **Middleware de Autorização**: Valida a integridade e a expiração do token em cada requisição protegida.
 - **Sanitização de Respostas**: O utilitário `resfc` garante que campos sensíveis, como senhas, nunca sejam enviados nas respostas JSON da API.
+
+### ✉️ Verificação e Integridade de Conta (OTP)
+
+- **Validação de Identidade**: Autenticação de conta através de códigos numéricos de 6 dígitos (OTP) enviados via e-mail com templates HTML padronizados.
+- **Troca Segura de E-mail**: A alteração do endereço de e-mail exige validação. O novo e-mail fica em modo de espera (\`new_email\`) e só substitui o principal após a confirmação do token recebido na nova caixa de entrada.
+- **Bloqueio de Ações Críticas**: Administradores com e-mail não verificado (\`is_verified: false\`) sofrem restrição de privilégios e são impedidos de aprovar, recusar ou excluir agendamentos até que concluam a verificação.
 
 ### 🚦 Controle de Tráfego (Rate Limiting)
 
@@ -54,6 +61,13 @@ NODE_ENV=development
 JWT_SECRET=sua_chave_ultra_secreta_aqui
 JWT_EXPIRES_IN=6h
 DATABASE_FILENAME=./src/database/dev.db
+
+# Configurações de E-mail (SMTP)
+SMTP_HOST=smtp.seudominio.com
+SMTP_PORT=587
+SMTP_USER=email@seudominio.com
+SMTP_PASS=suasenha
+EMAIL_FROM="Biblioteca ETEC" <email@seudominio.com>
 ```
 
 ## ▶️ Como Rodar o Projeto
@@ -114,11 +128,13 @@ Como o ambiente está configurado dentro de containers, utilize o `docker compos
 
 ### Usuário (`/users`)
 
-| Método    | Rota           | Descrição                                   | Acesso    |
-| :-------- | :------------- | :------------------------------------------ | :-------- |
-| **GET**   | `/me`          | Verifica e retorna dados do usuário logado. | Protegido |
-| **PATCH** | `/me`          | Altera dados do usuário logado.             | Protegido |
-| **PATCH** | `/me/password` | Altera senha do usuário logado.             | Protegido |
+| Método    | Rota                       | Descrição                                                                                | Acesso    |
+| :-------- | :------------------------- | :--------------------------------------------------------------------------------------- | :-------- |
+| **GET**   | `/me`                      | Verifica e retorna dados do usuário logado.                                              | Protegido |
+| **PATCH** | `/me`                      | Altera dados do usuário logado.                                                          | Protegido |
+| **PATCH** | `/me/password`             | Altera senha do usuário logado.                                                          | Protegido |
+| **POST**  | `/me/request-verification` | Envia código numérico (OTP) de 6 dígitos para o e-mail atual ou novo.                    | Protegido |
+| **POST**  | `/me/verify-code`          | Verifica e valida o código de verificação para ativação da conta ou alteração de e-mail. | Protegido |
 
 ### Agendamento (`/agendamentos`)
 
@@ -129,6 +145,8 @@ Como o ambiente está configurado dentro de containers, utilize o `docker compos
 | **PATCH**  | `/:id`             | Altera o status de um agendamento (APROVADO, RECUSADO ou PENDENTE).    | Protegido |
 | **DELETE** | `/:id`             | Remove permanentemente um agendamento do banco de dados.               | Protegido |
 | **GET**    | `/disponibilidade` | Lista apenas os horários disponíveis para uma data específica.         | Público   |
+
+> **\*Ações críticas (PATCH/DELETE)** requerem que o administrador tenha o e-mail validado (`is_verified: true`).\*
 
 ### 🔍 Listagem, Busca e Paginação
 
