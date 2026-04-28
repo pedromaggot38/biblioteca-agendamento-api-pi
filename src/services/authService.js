@@ -12,16 +12,19 @@ export const registrarPrimeiroAdmin = async (dados) => {
     throw new AppError('O sistema já possui um administrador cadastrado.', 403);
   }
 
+  const is_verified = false;
+
   const [id] = await db('users').insert({
     ...dados,
     password: await bcrypt.hash(dados.password, 10),
-    is_active: true
+    is_verified
   });
 
-  const token = gerarToken(id);
+  const token = gerarToken(id, is_verified);
 
   return { 
-    token, 
+    token,
+    is_verified,
     user: { id, nome: dados.nome, email: dados.email } 
   };
 };
@@ -33,11 +36,16 @@ export const autenticarUsuario = async (email, password) => {
     throw new AppError('E-mail ou senha incorretos.', 401);
   }
 
-  const token = gerarToken(user.id);
+  const token = gerarToken(user.id, user.is_verified);
 
   return {
     token,
-    user: { nome: user.nome, email: user.email }
+    user: { 
+      id: user.id, 
+      nome: user.nome, 
+      email: user.email,
+      is_verified: !!user.is_verified
+    }
   };
 };
 
@@ -52,8 +60,6 @@ export const solicitarRecuperacao = async (email) => {
     reset_token: token,
     reset_token_expires: expira
   });
-
-  console.log(token)
 
   enviarEmail(user.email, 'RECUPERACAO_SENHA', { 
     nome: user.nome,

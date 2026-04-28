@@ -8,8 +8,8 @@ import {
   validarVinculoExistente,
 } from '../utils/controllers/agendamentoUtils.js';
 import AppError from '../utils/appError.js';
-
 import { formatTitleCase } from '../utils/stringUtils.js';
+import { enviarEmail } from '../utils/mailer.js';
 
 export const listarAgendamentosPaginados = async (
   page,
@@ -114,24 +114,30 @@ export const criarAgendamento = async (dados) => {
 export const atualizarStatusAgendamento = async (id, status) => {
   const agendamentoAtual = await db('agendamentos').where({ id }).first();
 
-  if (!agendamentoAtual) {
-    throw new AppError('Agendamento não encontrado para atualização.', 404);
-  }
-
-  if (agendamentoAtual.status === status) {
-    throw new AppError(`O agendamento já se encontra com o status ${status}.`, 400);
-  }
+  if (!agendamentoAtual) throw new AppError('Agendamento não encontrado.', 404);
 
   const agora = getNowBR();
   const [agendamentoAtualizado] = await db('agendamentos')
     .where({ id })
-    .update({
-      status,
-      updated_at: agora,
-    })
+    .update({ status, updated_at: agora })
     .returning('*');
 
-  return agendamentoAtualizado;
+  let emailSucesso = true;
+
+  if (status === 'APROVADO' || status === 'RECUSADO') {
+    const tipo = status === 'APROVADO' ? 'APROVACAO_AGENDAMENTO' : 'RECUSA_AGENDAMENTO';
+    
+    emailSucesso = await enviarEmail(agendamentoAtualizado.email, tipo, {
+      nome: agendamentoAtualizado.nome,
+      data: agendamentoAtualizado.data.split('-').reverse().join('/'),
+      horario: agendamentoAtualizado.horario
+    });
+  }
+
+  return { 
+    agendamento: agendamentoAtualizado, 
+    emailSucesso 
+  };
 };
 
 export const excluirAgendamento = async (id) => {

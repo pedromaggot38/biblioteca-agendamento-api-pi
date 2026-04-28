@@ -39,4 +39,14 @@ const protect = catchAsync(async (req, res, next) => {
   }
 });
 
+export const onlyVerifiedUsers = (req, res, next) => {
+  if (!req.user.is_verified) {
+    return res.status(403).json({
+      status: 'fail',
+      message: 'Acesso restrito. Por favor, confirme seu e-mail para realizar esta ação.'
+    });
+  }
+  next();
+};
+
 export default protect;

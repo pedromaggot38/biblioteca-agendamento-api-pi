@@ -4,10 +4,11 @@
  */
 export const up = function (knex) {
   return knex.schema.alterTable('users', (table) => {
-    table.boolean('is_active').defaultTo(false);
-    table.string('activation_token');
-    table.string('reset_token');
-    table.datetime('reset_token_expires');
+    table.string('new_email').nullable()
+    table.boolean('is_verified').defaultTo(false).notNullable(); 
+    table.string('verification_token', 6).nullable();
+    table.string('reset_token').nullable();
+    table.datetime('reset_token_expires').nullable();
   });
 };
 
@@ -18,8 +19,9 @@ export const up = function (knex) {
 export const down = function(knex) {
   return knex.schema.alterTable('users', (table) => {
     table.dropColumns([
-      'is_active', 
-      'activation_token', 
+      'new_email',
+      'is_verified', 
+      'verification_token', 
       'reset_token', 
       'reset_token_expires'
     ]);

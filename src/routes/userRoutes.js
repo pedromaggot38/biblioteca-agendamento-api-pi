@@ -15,4 +15,8 @@ router
   .route('/me/password')
   .patch(protect, validate(updatePasswordSchema), userController.updatePassword);
 
+router.post('/me/request-verification', protect, userController.solicitarNovoTokenVerificacao);
+
+router.post('/me/verify-code', protect, userController.verificarTokenVerificacao);
+
 export default router;

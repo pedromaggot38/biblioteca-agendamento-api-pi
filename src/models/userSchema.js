@@ -48,8 +48,7 @@ export const resetPasswordSchema = z
 
 export const updateMeSchema = userBaseFields
   .pick({
-    nome: true,
-    email: true,
+    nome: true
   })
   .partial()
   .refine((data) => Object.keys(data).length > 0, {
@@ -70,3 +69,18 @@ export const updatePasswordSchema = z
     message: 'A nova senha não pode ser igual à senha atual',
     path: ['newPassword'],
   });
+
+  export const requestVerificationSchema = z.object({
+  novoEmail: z
+    .email('Email inválido')
+    .transform(normalizeInput)
+    .optional()
+    .nullable(),
+});
+
+export const verifyCodeSchema = z.object({
+  token: z
+    .string()
+    .length(6, 'O código deve ter exatamente 6 dígitos')
+    .regex(/^\d+$/, 'O código deve conter apenas números'),
+});

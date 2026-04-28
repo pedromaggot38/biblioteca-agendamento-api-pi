@@ -63,39 +63,21 @@ export const createAgendamento = catchAsync(async (req, res, next) => {
   });
 });
 
-export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
+export const updateStatusAgendamento = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const agendamento = await agendamentoService.atualizarStatusAgendamento(id, status);
+  const { agendamento, emailSucesso } = await agendamentoService.atualizarStatusAgendamento(id, status);
 
-  let emailEnviado = false;
-
-  if (status === 'APROVADO' || status === 'RECUSADO') {
-    const tipo = status === 'APROVADO' ? 'APROVACAO_AGENDAMENTO' : 'RECUSA_AGENDAMENTO';
-    
-    try {
-      await enviarEmail(agendamento.email, tipo, {
-        nome: agendamento.nome,
-        data: agendamento.data.split('-').reverse().join('/'),
-        horario: agendamento.horario
-      });
-      emailEnviado = true;
-    } catch (err) {
-      console.error("Falha ao tentar notificar o aluno:", err);
-      emailEnviado = false;
-    }
-  }
-
-  const mensagemAmigavel = emailEnviado 
+  const mensagem = emailSucesso 
     ? `Agendamento ${status.toLowerCase()} e aluno notificado!`
-    : `Agendamento ${status.toLowerCase()}, mas o e-mail de notificação falhou.`;
+    : `Agendamento ${status.toLowerCase()}, mas houve um erro ao enviar o e-mail.`;
 
   return resfc({
     res,
     code: 200,
     data: agendamento,
-    message: mensagemAmigavel,
+    message: mensagem
   });
 });
 

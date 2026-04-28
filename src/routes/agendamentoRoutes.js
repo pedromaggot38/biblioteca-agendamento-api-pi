@@ -1,5 +1,5 @@
 import express from 'express';
-import protect from '../middlewares/auth.js';
+import protect, { onlyVerifiedUsers } from '../middlewares/auth.js';
 import validate from '../middlewares/validate.js';
 import {
   agendamentoSchema,
@@ -35,9 +35,10 @@ router
   .get(protect, agendamentoController.getAgendamento)
   .patch(
     protect,
+    onlyVerifiedUsers,
     validate(statusSchema),
     agendamentoController.updateStatusAgendamento,
   )
-  .delete(protect, agendamentoController.deleteAgendamento);
+  .delete(protect, onlyVerifiedUsers, agendamentoController.deleteAgendamento);
 
 export default router;
