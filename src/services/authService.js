@@ -55,10 +55,10 @@ export const solicitarRecuperacao = async (email) => {
 
   console.log(token)
 
-  await enviarEmail(user.email, 'RECUPERACAO_SENHA', { 
+  enviarEmail(user.email, 'RECUPERACAO_SENHA', { 
     nome: user.nome,
     token
-  });
+  }).catch(err => console.error("Erro no envio de e-mail:", err));
 };
 
 export const resetarSenha = async (token, novaSenha) => {
