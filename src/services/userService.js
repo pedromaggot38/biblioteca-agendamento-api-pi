@@ -27,6 +27,10 @@ export const prepararVerificacao = async (userId, novoEmail = null) => {
   const user = await db('users').where({ id: userId }).first();
 
   if (!user) throw new AppError('Usuário não encontrado.', 404);
+  
+  if (novoEmail && novoEmail.trim().toLowerCase() === user.email.toLowerCase()) {
+    throw new AppError('Este já é o seu e-mail atual. Digite um e-mail diferente para realizar a troca.', 400);
+  }
 
   const emailFornecido = novoEmail || null;
 
