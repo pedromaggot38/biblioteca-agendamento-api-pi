@@ -34,8 +34,8 @@ const templates = {
           <div style="padding: 40px 30px; text-align: center;">
             <h2 style="color: #1e293b; margin-top: 0; font-size: 20px; font-weight: 700;">Confirme seu e-mail</h2>
             <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 10px;">Olá! Para garantir a segurança do seu acesso administrativo, precisamos validar sua conta.</p>
-            <div style="background-color: #f1f5f9; border: 2px solid #e2e8f0; padding: 25px; margin: 30px auto; width: fit-content; border-radius: 12px;">
-              <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #2c3e50;">${dados.token}</span>
+            <div style="background-color: #f8f9fa; border: 2px dashed #3498db; padding: 20px; margin: 30px auto; width: fit-content; border-radius: 8px;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2c3e50;">${dados.token}</span>
             </div>
             <p style="color: #94a3b8; font-size: 14px; margin-bottom: 0;">Se você não solicitou este código, por favor, ignore este e-mail.</p>
           </div>
@@ -56,8 +56,8 @@ const templates = {
           <div style="padding: 40px 30px; text-align: center;">
             <h2 style="color: #1e293b; margin-top: 0; font-size: 20px; font-weight: 700;">Olá, ${dados.nome}!</h2>
             <p style="color: #475569; font-size: 16px; line-height: 1.6;">Você solicitou a recuperação da sua senha administrativa.</p>
-            <div style="background-color: #f1f5f9; border: 2px solid #e2e8f0; padding: 25px; margin: 30px auto; width: fit-content; border-radius: 12px;">
-              <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #2c3e50;">${dados.token}</span>
+            <div style="background-color: #f8f9fa; border: 2px dashed #3498db; padding: 20px; margin: 30px auto; width: fit-content; border-radius: 8px;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2c3e50;">${dados.token}</span>
             </div>
             <p style="color: #64748b; font-size: 13px;">Este código é válido por 5 minutos.</p>
           </div>
