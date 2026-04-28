@@ -1,4 +1,5 @@
 import catchAsync from '../utils/catchAsync.js';
+import { enviarEmail } from '../utils/mailer.js';
 import { resfc } from '../utils/resfc.js';
 import * as agendamentoService from '../services/agendamentoService.js';
 
@@ -66,13 +67,35 @@ export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const agendamentoAtualizado = await agendamentoService.atualizarStatusAgendamento(id, status);
+  const agendamento = await agendamentoService.atualizarStatusAgendamento(id, status);
+
+  let emailEnviado = false;
+
+  if (status === 'APROVADO' || status === 'RECUSADO') {
+    const tipo = status === 'APROVADO' ? 'APROVACAO_AGENDAMENTO' : 'RECUSA_AGENDAMENTO';
+    
+    try {
+      await enviarEmail(agendamento.email, tipo, {
+        nome: agendamento.nome,
+        data: agendamento.data.split('-').reverse().join('/'),
+        horario: agendamento.horario
+      });
+      emailEnviado = true;
+    } catch (err) {
+      console.error("Falha ao tentar notificar o aluno:", err);
+      emailEnviado = false;
+    }
+  }
+
+  const mensagemAmigavel = emailEnviado 
+    ? `Agendamento ${status.toLowerCase()} e aluno notificado!`
+    : `Agendamento ${status.toLowerCase()}, mas o e-mail de notificação falhou.`;
 
   return resfc({
     res,
     code: 200,
-    data: agendamentoAtualizado,
-    message: `Agendamento ${status.toLowerCase()} com sucesso!`,
+    data: agendamento,
+    message: mensagemAmigavel,
   });
 });
 

@@ -112,18 +112,26 @@ export const criarAgendamento = async (dados) => {
 };
 
 export const atualizarStatusAgendamento = async (id, status) => {
-  const agora = getNowBR();
+  const agendamentoAtual = await db('agendamentos').where({ id }).first();
 
-  const agendamento = await db('agendamentos').where({ id }).update({
-    status,
-    updated_at: agora,
-  });
-
-  if (!agendamento) {
+  if (!agendamentoAtual) {
     throw new AppError('Agendamento não encontrado para atualização.', 404);
   }
 
-  return { id, status };
+  if (agendamentoAtual.status === status) {
+    throw new AppError(`O agendamento já se encontra com o status ${status}.`, 400);
+  }
+
+  const agora = getNowBR();
+  const [agendamentoAtualizado] = await db('agendamentos')
+    .where({ id })
+    .update({
+      status,
+      updated_at: agora,
+    })
+    .returning('*');
+
+  return agendamentoAtualizado;
 };
 
 export const excluirAgendamento = async (id) => {
