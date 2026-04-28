@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 const templates = {
   RECUPERACAO_SENHA: (dados) => ({
-    subject: 'Recuperação de Senha - Biblioteca Etec',
+    subject: 'Código de Recuperação - Biblioteca Etec',
     html: `
       <div style="background-color: #f4f4f9; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #e9ecef; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
@@ -21,17 +21,16 @@ const templates = {
             <h1 style="color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px;">Biblioteca Etec</h1>
           </div>
           
-          <div style="padding: 30px;">
+          <div style="padding: 30px; text-align: center;">
             <h2 style="color: #2c3e50; margin-top: 0; font-size: 20px;">Olá, ${dados.nome}!</h2>
-            <p style="color: #444444; font-size: 16px; line-height: 1.6;">Você solicitou a alteração da sua senha administrativa.</p>
-            <p style="color: #444444; font-size: 16px; line-height: 1.6;">Clique no botão abaixo para criar uma nova senha com segurança:</p>
+            <p style="color: #444444; font-size: 16px; line-height: 1.6;">Você solicitou a recuperação da sua senha administrativa.</p>
+            <p style="color: #444444; font-size: 16px; line-height: 1.6;">Use o código de 6 dígitos abaixo para prosseguir:</p>
             
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="${dados.link}" style="background-color: #3498db; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">Redefinir Minha Senha</a>
+            <div style="background-color: #f8f9fa; border: 2px dashed #3498db; padding: 20px; margin: 30px auto; width: fit-content; border-radius: 8px;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2c3e50;">${dados.token}</span>
             </div>
             
-            <hr style="border: none; border-top: 1px solid #e9ecef; margin: 25px 0;">
-            <p style="color: #7f8c8d; font-size: 13px; margin: 0; text-align: center;">Este link expira em 10 minutos. Se não foi você quem solicitou, por favor, ignore este e-mail.</p>
+            <p style="color: #7f8c8d; font-size: 13px; margin: 0;">Este código é válido por 5 minutos. Nunca o compartilhe com terceiros.</p>
           </div>
 
         </div>

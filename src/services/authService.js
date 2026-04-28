@@ -45,8 +45,8 @@ export const solicitarRecuperacao = async (email) => {
   const user = await db('users').where({ email }).first();
   if (!user) return;
 
-  const token = crypto.randomBytes(32).toString('hex');
-  const expira = new Date(Date.now() + 600000).toISOString();
+  const token = crypto.randomInt(100000, 999999).toString();
+  const expira = new Date(Date.now() + 300000).toISOString();
 
   await db('users').where({ id: user.id }).update({
     reset_token: token,
@@ -55,10 +55,10 @@ export const solicitarRecuperacao = async (email) => {
 
   console.log(token)
 
-  // await enviarEmail(user.email, 'RECUPERACAO_SENHA', { 
-  //   nome: user.nome, 
-  //   token 
-  // });
+  await enviarEmail(user.email, 'RECUPERACAO_SENHA', { 
+    nome: user.nome,
+    token
+  });
 };
 
 export const resetarSenha = async (token, novaSenha) => {
@@ -70,7 +70,7 @@ export const resetarSenha = async (token, novaSenha) => {
     .first();
 
   if (!user) {
-    throw new AppError('Link expirado ou inválido. Solicite uma nova recuperação.', 400);
+    throw new AppError('Código inválido ou expirado. Solicite uma nova recuperação.', 400);
   }
 
   const senhaIgualAAntiga = await bcrypt.compare(novaSenha, user.password);

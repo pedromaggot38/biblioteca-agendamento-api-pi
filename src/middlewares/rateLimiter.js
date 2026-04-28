@@ -23,7 +23,7 @@ export const createAgendamentoLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-export const loginLimiter = rateLimit({
+export const lowRequestsLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 8,
   message: {

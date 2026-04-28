@@ -34,9 +34,12 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    token: z.string().min(1, 'O token é obrigatório'),
-    password: userBaseFields.shape.password,
-    passwordConfirm: userBaseFields.shape.passwordConfirm,
+    token: z
+      .string()
+      .length(6, 'O código de verificação deve ter exatamente 6 dígitos')
+      .regex(/^\d+$/, 'O código deve conter apenas números'),
+    password: z.string().min(4, 'A senha deve ter no mínimo 4 caracteres'),
+    passwordConfirm: z.string().min(1, 'A confirmação é obrigatória'),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     message: 'As senhas não coincidem',
