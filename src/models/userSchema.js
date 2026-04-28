@@ -8,8 +8,7 @@ const userBaseFields = z.object({
     .trim()
     .min(3, 'O nome deve ter pelo menos 3 caracteres')
     .max(50, 'Nome muito longo'),
-  email: z
-     .transform(normalizeInput),
+  email: z.email('Email inválido').transform(normalizeInput),
   password: z
     .string()
     .min(4, 'A senha deve ter no mínimo 4 caracteres'),
@@ -28,6 +27,21 @@ export const loginSchema = z.object({
   email: userBaseFields.shape.email,
   password: z.string().min(1, 'A senha é obrigatória'),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: userBaseFields.shape.email,
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, 'O token é obrigatório'),
+    password: userBaseFields.shape.password,
+    passwordConfirm: userBaseFields.shape.passwordConfirm,
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: 'As senhas não coincidem',
+    path: ['passwordConfirm'],
+  });
 
 export const updateMeSchema = userBaseFields
   .pick({

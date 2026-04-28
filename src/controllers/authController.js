@@ -27,6 +27,17 @@ export const login = catchAsync(async (req, res) => {
   });
 });
 
+export const forgotPassword = catchAsync(async (req, res) => {
+  await authService.solicitarRecuperacao(req.body.email);
+  return resfc({ res, code: 200, message: 'Se o e-mail existir, as instruções foram enviadas.' });
+});
+
+export const resetPassword = catchAsync(async (req, res) => {
+  const { token, password } = req.body;
+  await authService.resetarSenha(token, password);
+  return resfc({ res, code: 200, message: 'Senha atualizada com sucesso!' });
+});
+
 export const getSystemStatus = catchAsync(async (req, res) => {
   const inicializado = await authService.verificarSistemaInicializado();
 

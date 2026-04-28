@@ -66,8 +66,7 @@ export const updateStatusAgendamento = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const agendamentoAtualizado =
-    await agendamentoService.atualizarStatusAgendamento(id, status);
+  const agendamentoAtualizado = await agendamentoService.atualizarStatusAgendamento(id, status);
 
   return resfc({
     res,

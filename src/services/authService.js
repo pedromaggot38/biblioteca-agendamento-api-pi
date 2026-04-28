@@ -1,7 +1,9 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import db from '../config/db.js';
 import AppError from '../utils/appError.js';
 import { gerarToken } from '../utils/controllers/authUtils.js';
+import { enviarEmail } from '../utils/mailer.js';
 
 export const registrarPrimeiroAdmin = async (dados) => {
   const { total } = await db('users').count('id as total').first();
@@ -12,7 +14,8 @@ export const registrarPrimeiroAdmin = async (dados) => {
 
   const [id] = await db('users').insert({
     ...dados,
-    password: await bcrypt.hash(dados.password, 10)
+    password: await bcrypt.hash(dados.password, 10),
+    is_active: true
   });
 
   const token = gerarToken(id);
@@ -36,6 +39,54 @@ export const autenticarUsuario = async (email, password) => {
     token,
     user: { nome: user.nome, email: user.email }
   };
+};
+
+export const solicitarRecuperacao = async (email) => {
+  const user = await db('users').where({ email }).first();
+  if (!user) return;
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expira = new Date(Date.now() + 600000).toISOString();
+
+  await db('users').where({ id: user.id }).update({
+    reset_token: token,
+    reset_token_expires: expira
+  });
+
+  console.log(token)
+
+  // await enviarEmail(user.email, 'RECUPERACAO_SENHA', { 
+  //   nome: user.nome, 
+  //   token 
+  // });
+};
+
+export const resetarSenha = async (token, novaSenha) => {
+  const agora = new Date().toISOString();
+
+  const user = await db('users')
+    .where({ reset_token: token })
+    .andWhere('reset_token_expires', '>', agora)
+    .first();
+
+  if (!user) {
+    throw new AppError('Link expirado ou inválido. Solicite uma nova recuperação.', 400);
+  }
+
+  const senhaIgualAAntiga = await bcrypt.compare(novaSenha, user.password);
+
+  if (senhaIgualAAntiga) {
+    throw new AppError('A nova senha não pode ser igual à senha atual.', 400);
+  }
+
+  const hashedPassword = await bcrypt.hash(novaSenha, 10);
+
+  await db('users').where({ id: user.id }).update({
+    password: hashedPassword,
+    reset_token: null,
+    reset_token_expires: null,
+    updated_at: new Date().toISOString()
+  });
 };
 
 export const verificarSistemaInicializado = async () => {

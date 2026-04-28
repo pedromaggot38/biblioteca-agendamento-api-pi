@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 export const getMe = async (id) => {
   const user = await db('users')
     .where({ id })
-    .select('id', 'nome', 'email')
+    .select('id', 'nome', 'email', 'is_active' )
     .first();
 
   if (!user) {
