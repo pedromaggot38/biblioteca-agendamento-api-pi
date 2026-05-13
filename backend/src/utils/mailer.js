@@ -1,7 +1,5 @@
 import nodemailer from 'nodemailer';
 
-
-
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
@@ -44,7 +42,7 @@ const templates = {
       </div>
     `,
   }),
-  
+
   RECUPERACAO_SENHA: (dados) => ({
     subject: 'Código de Recuperação - Biblioteca Etec',
     html: `
@@ -109,7 +107,7 @@ const templates = {
         </div>
       </div>
     `,
-  })
+  }),
 };
 
 export const enviarEmail = async (para, tipo, dados) => {
@@ -122,7 +120,7 @@ export const enviarEmail = async (para, tipo, dados) => {
       subject: template.subject,
       html: template.html,
     });
-    
+
     return true;
   } catch (error) {
     console.error(`❌ Erro ao enviar e-mail do tipo [${tipo}]:`, error);

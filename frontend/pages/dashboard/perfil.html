@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Biblioteca</title>
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <script src="./../../js/auth/checkAuth.js"></script>
+    <link rel="stylesheet" href="./../../css/style.css">
+    <style>
+        .cartao-perfil {
+            background: white;
+            padding: 50px;
+            /* Aumentado para mais respiro */
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            max-width: 1100px;
+            /* Card maior como solicitado */
+            margin: 40px auto;
+            border-top: 5px solid #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .grid-campos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .input-bloqueado {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            color: #7f8c8d;
+            border-color: #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .grid-campos {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+        }
+
+        .abas-perfil {
+            display: flex;
+            justify-content: flex-start;
+            gap: 40px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-btn {
+            padding: 15px 0;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 700;
+            color: #95a5a6;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-btn.ativa {
+            color: #2c3e50;
+            border-bottom-color: #2c3e50;
+        }
+
+        .grupo-input label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .btn-salvar {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-salvar:hover {
+            background-color: #34495e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .instrucao-senha {
+            font-size: 13px;
+            color: #5d6d7e;
+            background: #ebf5fb;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        #areaCodigo {
+            max-width: 450px;
+            margin: 10px auto 25px auto;
+        }
+    </style>
+</head>
+
+<body class="fundo-painel">
+
+    <main class="container-painel">
+        <header class="cabecalho-painel">
+            <div>
+                <h1>Meu Perfil</h1>
+                <p>Configurações de conta e segurança</p>
+            </div>
+            <button class="btn-secundario" onclick="window.location.href='./painel.html'">
+                ⬅ Voltar ao Painel
+            </button>
+        </header>
+
+        <div id="bannerVerificacao" class="instrucao-senha"
+            style="display: none; border-left-color: #e74c3c; background: #fdedec; color: #c0392b; margin: 20px auto; max-width: 1100px;">
+            <strong>Ação Necessária:</strong> Sua conta ainda não foi verificada. Algumas funções do painel estão
+            bloqueadas.
+            <button onclick="irParaAbaVerificacao()"
+                style="background: none; border: none; color: #3498db; text-decoration: underline; cursor: pointer; font-weight: bold; width: auto; padding: 0; margin-left: 10px;">
+                Verificar Agora
+            </button>
+        </div>
+
+        <section class="cartao-perfil">
+            <nav class="abas-perfil">
+                <button id="tabDados" class="tab-btn ativa">Dados Pessoais</button>
+                <button id="tabSenha" class="tab-btn">Segurança</button>
+                <button id="tabVerificacao" class="tab-btn">Verificação</button>
+            </nav>
+
+            <form id="formPerfil" novalidate>
+                <div class="grid-campos">
+                    <div class="grupo-input">
+                        <label for="nomeAdmin">Nome Completo</label>
+                        <input type="text" id="nomeAdmin" placeholder="Ex: Pedro Henrique" required>
+                    </div>
+                    <div class="grupo-input">
+                        <label for="emailAdminReadonly">E-mail</label>
+                        <input type="email" id="emailAdminReadonly" class="input-bloqueado" readonly
+                            title="Alteração apenas na aba de Verificação">
+                    </div>
+                    <div class="full-width">
+                        <button type="submit" class="btn-salvar">Atualizar Dados Cadastrais</button>
+                    </div>
+                </div>
+            </form>
+
+            <form id="formVerificacao" style="display: none;" novalidate>
+                <div class="instrucao-senha" id="avisoStatus">
+                    Verifique sua conta para liberar todas as funções do painel.
+                </div>
+
+                <div class="grid-campos">
+                    <div class="full-width" id="displayEmailAtual"
+                        style="background: #ffffff; padding: 30px; border-radius: 14px; border: 1px solid #e0e6ed; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+
+                        <div style="display: flex; align-items: center; gap: 25px;">
+                            <div>
+                                <span
+                                    style="display: block; font-size: 12px; color: #95a5a6; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px;">E-mail
+                                    Atual</span>
+                                <strong id="textoEmailAtual"
+                                    style="color: #2c3e50; font-size: 20px; font-family: 'Inter', sans-serif; letter-spacing: -0.5px;">carregando...</strong>
+                            </div>
+                        </div>
+
+                        <button type="button" id="btnHabilitarTroca" class="btn-editar-emoji" title="Alterar e-mail"
+                            style="margin-left: 40px;">
+                            ✏️
+                        </button>
+                    </div>
+
+                    <div class="grupo-input full-width" id="containerNovoEmail" style="display: none;">
+                        <label for="emailAdmin">Novo E-mail Institucional</label>
+                        <input type="email" id="emailAdmin" placeholder="digite o novo e-mail">
+                        <small style="color: #7f8c8d; margin-top: 5px; display: block;">Ao solicitar o código, este será
+                            o seu novo endereço após a confirmação.</small>
+                    </div>
+
+                    <div class="grupo-input full-width" id="areaCodigo" style="display: none;">
+                        <label for="codigoOTP">Código de 6 Dígitos recebido</label>
+                        <input type="text" id="codigoOTP" placeholder="000000" maxlength="6"
+                            style="text-align: center; font-size: 28px; letter-spacing: 12px; font-family: monospace;">
+                    </div>
+
+                    <div class="full-width" style="display: flex; gap: 15px;">
+                        <button type="button" id="btnGerarCodigo" class="btn-salvar" style="flex: 1;">
+                            Enviar Código de Verificação
+                        </button>
+                        <button type="submit" id="btnValidarCodigo" class="btn-salvar"
+                            style="background-color: #27ae60; flex: 1; display: none;">
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <form id="formSenha" style="display: none;" novalidate>
+                <div class="instrucao-senha">
+                    Para sua segurança, a nova senha deve ter no mínimo 4 caracteres.
+                </div>
+                <div class="grid-campos">
+                    <div class="grupo-input full-width" style="border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
+                        <label for="senhaAtual">Senha Atual</label>
+                        <input type="password" id="senhaAtual" placeholder="Confirme sua identidade" required>
+                    </div>
+                    <div class="grupo-input">
+                        <label for="novaSenha">Nova Senha</label>
+                        <input type="password" id="novaSenha" placeholder="Digite a nova senha" required>
+                    </div>
+                    <div class="grupo-input">
+                        <label for="confirmarSenha">Confirmar Nova Senha</label>
+                        <input type="password" id="confirmarSenha" placeholder="Repita a nova senha" required>
+                    </div>
+                    <div class="full-width">
+                        <button type="submit" id="btnSalvarSenha" class="btn-salvar">
+                            Alterar Senha do Sistema
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="./../../js/utils/ui.js"></script>
+    <script src="./../../js/dashboard/perfil.js"></script>
+</body>
+
+</html>

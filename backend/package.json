@@ -6,9 +6,10 @@
   "scripts": {
     "start": "npx knex migrate:latest && node src/server.js",
     "dev": "nodemon -L src/server.js",
-    "start:dev": "npx knex migrate:latest && nodemon -L src/server.js",
+    "db:start": "npx knex migrate:latest",
     "db:reset": "rm -f src/database/dev.db && npx knex migrate:latest",
-    "db:seed": "npx knex seed:run"
+    "db:seed": "npx knex seed:run",
+    "start:dev": "npx knex migrate:latest && nodemon -L src/server.js"
   },
   "repository": {
     "type": "git",
