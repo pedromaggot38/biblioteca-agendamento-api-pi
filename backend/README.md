@@ -128,11 +128,13 @@ Como o ambiente está configurado dentro de containers, utilize o `docker compos
 
 ### Autenticação (`/auth`)
 
-| Método   | Rota        | Descrição                                                               | Acesso  |
-| :------- | :---------- | :---------------------------------------------------------------------- | :------ |
-| **POST** | `/login`    | Autentica o bibliotecário e retorna o Token JWT para acesso protegido.  | Público |
-| **POST** | `/register` | Registra o primeiro administrador (bloqueado se já houver um cadastro). | Público |
-| **GET**  | `/status`   | Verifica se já existe um administrador cadastrado no sistema.           | Público |
+| Método   | Rota               | Descrição                                                               | Acesso  |
+| :------- | :----------------- | :---------------------------------------------------------------------- | :------ |
+| **POST** | `/login`           | Autentica o bibliotecário e retorna o Token JWT para acesso protegido.  | Público |
+| **POST** | `/register`        | Registra o primeiro administrador (bloqueado se já houver um cadastro). | Público |
+| **POST** | `/forgot-password` | Solicita a recuperação de senha e envia o token por e-mail.             | Público |
+| **POST** | `/reset-password`  | Define uma nova senha utilizando o token recebido por e-mail.           | Público |
+| **GET**  | `/status`          | Verifica se já existe um administrador cadastrado no sistema.           | Público |
 
 ### Usuário (`/users`)
 
