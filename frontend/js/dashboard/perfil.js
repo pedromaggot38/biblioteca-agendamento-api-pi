@@ -103,7 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  btnGerar?.addEventListener('click', async () => {
+  btnGerar?.addEventListener('click', async (e) => {
+    e.preventDefault();
+
     const userLocal = JSON.parse(localStorage.getItem('user'));
     const novoEmailDigitado = emailInputEdicao.value.trim().toLowerCase();
     const emailAtual = userLocal.email.toLowerCase();
